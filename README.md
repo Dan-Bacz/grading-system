@@ -92,9 +92,12 @@ NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-public-anon-key
 ```
 
+Make sure both variables are configured for your Vercel project before build and deployment.
+
 ### Notes
 - You do not need to store the service role key in Vercel for this app, because the current code uses the public anon key in the browser.
 - Make sure you have run your Supabase SQL setup first, including `supabase/create_profiles_trigger.sql` and `supabase/create_initial_admin.sql`.
+- If Vercel build still fails with `supabaseUrl is required`, the problem is that `NEXT_PUBLIC_SUPABASE_URL` / `NEXT_PUBLIC_SUPABASE_ANON_KEY` are not set in Vercel.
 
 Once the variables are configured, Vercel will build with:
 
