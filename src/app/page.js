@@ -1,65 +1,114 @@
-import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.js file.
+    <main className="min-h-screen bg-slate-50 p-6">
+      <div className="mx-auto max-w-4xl rounded-3xl bg-white p-8 shadow-xl shadow-slate-200">
+        <div className="mb-10 text-center">
+          <p className="text-sm uppercase tracking-[0.3em] text-sky-600">
+            FGBI Grading System
+          </p>
+          <h1 className="mt-4 text-4xl font-semibold tracking-tight text-slate-900">
+            School grading with RBAC and Supabase
           </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
+          <p className="mt-4 text-slate-600">
+            Admins approve students, assign teacher subjects, and teachers manage grades for their assigned subject.
           </p>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+
+        <div className="grid gap-5 sm:grid-cols-2">
+          <Link
+            href="/login"
+            className="rounded-3xl border border-slate-200 bg-slate-950 px-6 py-8 text-center text-white transition hover:bg-slate-800"
           >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+            <h2 className="text-xl font-semibold mb-2">Login</h2>
+            <p>Sign in with your school email.</p>
+          </Link>
+
+          <Link
+            href="/register"
+            className="rounded-3xl border border-slate-200 bg-sky-600 px-6 py-8 text-center text-white transition hover:bg-sky-500"
           >
-            Documentation
-          </a>
+            <h2 className="text-xl font-semibold mb-2">Register</h2>
+            <p>Create a student or teacher account for FGBI.</p>
+          </Link>
         </div>
-      </main>
-    </div>
+
+        <div className="mt-10 rounded-3xl bg-slate-50 p-6 text-slate-700 shadow-inner">
+          <h3 className="text-lg font-semibold mb-3">How it works</h3>
+          <ul className="space-y-2 text-sm leading-6">
+            <li>• Students register and wait for admin approval.</li>
+            <li>• Teachers register and receive assigned subjects from admin.</li>
+            <li>• Admin approves accounts and assigns teacher subjects.</li>
+            <li>• Teachers add grades for students in their assigned subject.</li>
+          </ul>
+        </div>
+      </div>
+    </main>
+  );
+
+  const average =
+    students.length > 0
+      ? students.reduce((sum, item) => sum + item.grade, 0) / students.length
+      : 0;
+
+  return (
+    <main className="min-h-screen bg-gray-100 p-6">
+      <div className="mx-auto max-w-4xl bg-white p-6 rounded-xl shadow">
+        <h1 className="text-3xl font-bold mb-2">Online Grading System</h1>
+        <p className="text-gray-600 mb-6">Simple grading dashboard</p>
+
+        <form onSubmit={addGrade} className="grid gap-4 mb-6">
+          <input
+            className="border p-3 rounded"
+            placeholder="Student Name"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+
+          <input
+            className="border p-3 rounded"
+            placeholder="Subject"
+            value={subject}
+            onChange={(e) => setSubject(e.target.value)}
+          />
+
+          <input
+            className="border p-3 rounded"
+            type="number"
+            placeholder="Grade"
+            value={grade}
+            onChange={(e) => setGrade(e.target.value)}
+          />
+
+          <button className="bg-blue-600 text-white p-3 rounded">
+            Add Grade
+          </button>
+        </form>
+
+        <h2 className="text-xl font-semibold mb-3">
+          Average Grade: {average.toFixed(2)}
+        </h2>
+
+        <table className="w-full border">
+          <thead>
+            <tr className="bg-gray-200">
+              <th className="border p-2">Student</th>
+              <th className="border p-2">Subject</th>
+              <th className="border p-2">Grade</th>
+            </tr>
+          </thead>
+          <tbody>
+            {students.map((student) => (
+              <tr key={student.id}>
+                <td className="border p-2">{student.name}</td>
+                <td className="border p-2">{student.subject}</td>
+                <td className="border p-2">{student.grade}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </main>
   );
 }

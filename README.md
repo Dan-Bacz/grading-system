@@ -20,6 +20,49 @@ You can start editing the page by modifying `app/page.js`. The page auto-updates
 
 This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
 
+## Supabase Setup
+
+1. Create a Supabase project and copy your project URL and public anon key.
+2. Add these values to a `.env.local` file in the project root using the structure in `.env.local.example`.
+3. Create the following tables in Supabase: `profiles` and `grades`.
+
+Example `profiles` fields:
+- `user_id` (uuid)
+- `email` (text)
+- `full_name` (text)
+- `role` (text)
+- `status` (text)
+- `assigned_subject` (text)
+- `phone` (text)
+- `address` (text)
+- `created_at` (timestamp)
+
+Example `grades` fields:
+- `student_id` (uuid)
+- `teacher_id` (uuid)
+- `subject` (text)
+- `score` (numeric)
+- `comment` (text)
+- `created_at` (timestamp)
+
+When you first set up Supabase, run the SQL script in `supabase/create_profiles_trigger.sql` from the Supabase SQL editor. That script creates the necessary tables, trigger, and RLS policies.
+
+### Create the first admin user
+1. In Supabase, go to Authentication → Users → New User.
+2. Create a user with email `admin@test.com` and password `admin123`.
+3. In Supabase SQL Editor, open `supabase/create_initial_admin.sql`.
+4. Confirm the SQL uses `admin@test.com`.
+5. Run the SQL in the editor.
+6. The SQL file does not set the Auth password — it only creates the profile row for the existing Auth user.
+7. Log in as the admin with `admin@test.com` / `admin123`, then approve teacher/student registrations from the app.
+
+Once your environment is configured, run:
+
+```bash
+npm install
+npm run dev
+```
+
 ## Learn More
 
 To learn more about Next.js, take a look at the following resources:
@@ -31,6 +74,35 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 
 ## Deploy on Vercel
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+This app is ready for Vercel deployment as a normal Next.js project.
+
+### Steps to deploy
+1. Push your repository to GitHub, GitLab, or Bitbucket.
+2. Go to [Vercel](https://vercel.com/new) and import your repository.
+3. In the Vercel project settings, add these environment variables:
+   - `NEXT_PUBLIC_SUPABASE_URL`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+4. Optionally add the same values to a local `.env.local` file during development.
+
+### Environment variables
+Use `.env.local.example` as a template. In Vercel, copy the values from your Supabase project settings:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-public-anon-key
+```
+
+### Notes
+- You do not need to store the service role key in Vercel for this app, because the current code uses the public anon key in the browser.
+- Make sure you have run your Supabase SQL setup first, including `supabase/create_profiles_trigger.sql` and `supabase/create_initial_admin.sql`.
+
+Once the variables are configured, Vercel will build with:
+
+```bash
+npm install
+npm run build
+```
+
+After deployment, the app should be available from your Vercel URL.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
