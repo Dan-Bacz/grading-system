@@ -43,30 +43,6 @@ export default function Home() {
             <li>• Teachers add grades for students in their assigned subject.</li>
           </ul>
         </div>
-
-        <div className="mt-10 rounded-3xl border border-slate-200 bg-slate-50 p-6 text-slate-700 shadow-sm">
-          <h3 className="text-lg font-semibold mb-4">Direct page access</h3>
-          <div className="grid gap-3 sm:grid-cols-3">
-            <Link href="/login" className="rounded-2xl border border-slate-200 bg-white px-4 py-4 text-center text-slate-700 transition hover:bg-sky-600 hover:text-white">
-              Login
-            </Link>
-            <Link href="/register" className="rounded-2xl border border-slate-200 bg-white px-4 py-4 text-center text-slate-700 transition hover:bg-sky-600 hover:text-white">
-              Register
-            </Link>
-            <Link href="/dashboard" className="rounded-2xl border border-slate-200 bg-white px-4 py-4 text-center text-slate-700 transition hover:bg-sky-600 hover:text-white">
-              Dashboard
-            </Link>
-            <Link href="/admin" className="rounded-2xl border border-slate-200 bg-white px-4 py-4 text-center text-slate-700 transition hover:bg-sky-600 hover:text-white">
-              Admin
-            </Link>
-            <Link href="/teacher" className="rounded-2xl border border-slate-200 bg-white px-4 py-4 text-center text-slate-700 transition hover:bg-sky-600 hover:text-white">
-              Teacher
-            </Link>
-            <Link href="/student" className="rounded-2xl border border-slate-200 bg-white px-4 py-4 text-center text-slate-700 transition hover:bg-sky-600 hover:text-white">
-              Student
-            </Link>
-          </div>
-        </div>
       </div>
     </main>
   );
