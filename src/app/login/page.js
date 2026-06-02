@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { supabase } from "@/lib/supabaseClient";
+import { supabase, supabaseClientError } from "@/lib/supabaseClient";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -11,6 +11,22 @@ export default function LoginPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+
+  if (supabaseClientError) {
+    return (
+      <main className="min-h-screen bg-slate-50 p-6">
+        <div className="mx-auto max-w-xl rounded-3xl bg-white p-8 shadow-xl shadow-slate-200">
+          <h1 className="text-3xl font-semibold text-slate-900">Login to FGBI</h1>
+          <p className="mt-2 text-slate-600">
+            The app cannot connect to Supabase because the public environment variables are not set.
+          </p>
+          <div className="mt-6 rounded-2xl bg-red-50 p-4 text-red-700">
+            {supabaseClientError.message}
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   async function handleLogin(event) {
     event.preventDefault();

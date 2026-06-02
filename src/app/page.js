@@ -43,71 +43,30 @@ export default function Home() {
             <li>• Teachers add grades for students in their assigned subject.</li>
           </ul>
         </div>
-      </div>
-    </main>
-  );
 
-  const average =
-    students.length > 0
-      ? students.reduce((sum, item) => sum + item.grade, 0) / students.length
-      : 0;
-
-  return (
-    <main className="min-h-screen bg-gray-100 p-6">
-      <div className="mx-auto max-w-4xl bg-white p-6 rounded-xl shadow">
-        <h1 className="text-3xl font-bold mb-2">Online Grading System</h1>
-        <p className="text-gray-600 mb-6">Simple grading dashboard</p>
-
-        <form onSubmit={addGrade} className="grid gap-4 mb-6">
-          <input
-            className="border p-3 rounded"
-            placeholder="Student Name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-
-          <input
-            className="border p-3 rounded"
-            placeholder="Subject"
-            value={subject}
-            onChange={(e) => setSubject(e.target.value)}
-          />
-
-          <input
-            className="border p-3 rounded"
-            type="number"
-            placeholder="Grade"
-            value={grade}
-            onChange={(e) => setGrade(e.target.value)}
-          />
-
-          <button className="bg-blue-600 text-white p-3 rounded">
-            Add Grade
-          </button>
-        </form>
-
-        <h2 className="text-xl font-semibold mb-3">
-          Average Grade: {average.toFixed(2)}
-        </h2>
-
-        <table className="w-full border">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border p-2">Student</th>
-              <th className="border p-2">Subject</th>
-              <th className="border p-2">Grade</th>
-            </tr>
-          </thead>
-          <tbody>
-            {students.map((student) => (
-              <tr key={student.id}>
-                <td className="border p-2">{student.name}</td>
-                <td className="border p-2">{student.subject}</td>
-                <td className="border p-2">{student.grade}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <div className="mt-10 rounded-3xl border border-slate-200 bg-slate-50 p-6 text-slate-700 shadow-sm">
+          <h3 className="text-lg font-semibold mb-4">Direct page access</h3>
+          <div className="grid gap-3 sm:grid-cols-3">
+            <Link href="/login" className="rounded-2xl border border-slate-200 bg-white px-4 py-4 text-center text-slate-700 transition hover:bg-sky-600 hover:text-white">
+              Login
+            </Link>
+            <Link href="/register" className="rounded-2xl border border-slate-200 bg-white px-4 py-4 text-center text-slate-700 transition hover:bg-sky-600 hover:text-white">
+              Register
+            </Link>
+            <Link href="/dashboard" className="rounded-2xl border border-slate-200 bg-white px-4 py-4 text-center text-slate-700 transition hover:bg-sky-600 hover:text-white">
+              Dashboard
+            </Link>
+            <Link href="/admin" className="rounded-2xl border border-slate-200 bg-white px-4 py-4 text-center text-slate-700 transition hover:bg-sky-600 hover:text-white">
+              Admin
+            </Link>
+            <Link href="/teacher" className="rounded-2xl border border-slate-200 bg-white px-4 py-4 text-center text-slate-700 transition hover:bg-sky-600 hover:text-white">
+              Teacher
+            </Link>
+            <Link href="/student" className="rounded-2xl border border-slate-200 bg-white px-4 py-4 text-center text-slate-700 transition hover:bg-sky-600 hover:text-white">
+              Student
+            </Link>
+          </div>
+        </div>
       </div>
     </main>
   );
