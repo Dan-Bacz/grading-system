@@ -368,8 +368,8 @@ export default function AdminPage() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 p-6">
-      <div className="mx-auto flex min-h-[calc(100vh-48px)] flex-col gap-6 lg:flex-row">
+    <main className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 sm:py-8">
+      <div className="mx-auto flex w-full max-w-7xl min-h-[calc(100vh-48px)] flex-col gap-6 lg:flex-row">
         <Sidebar
           title="FGBI Admin"
           menuItems={adminMenu}
@@ -380,7 +380,7 @@ export default function AdminPage() {
         />
 
         <div className="flex-1 space-y-6">
-          <section className="rounded-3xl bg-white p-8 shadow-xl shadow-slate-200">
+          <section className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200 sm:p-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
               <div>
                 <p className="text-sm uppercase tracking-[0.2em] text-sky-600">Admin panel</p>
@@ -393,7 +393,7 @@ export default function AdminPage() {
           {message ? <div className="rounded-3xl bg-emerald-50 p-4 text-emerald-800 shadow-sm">{message}</div> : null}
           {error ? <div className="rounded-3xl bg-rose-50 p-4 text-rose-800 shadow-sm">{error}</div> : null}
 
-          <section className="rounded-3xl bg-white p-8 shadow-xl shadow-slate-200">{renderActivePane()}</section>
+          <section className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200 sm:p-8">{renderActivePane()}</section>
         </div>
       </div>
     </main>

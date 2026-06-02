@@ -18,8 +18,8 @@ export default function RegisterPage() {
 
   if (supabaseClientError) {
     return (
-      <main className="min-h-screen bg-slate-50 p-6">
-        <div className="mx-auto max-w-xl rounded-3xl bg-white p-8 shadow-xl shadow-slate-200">
+      <main className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 sm:py-8">
+        <div className="mx-auto w-full max-w-xl rounded-3xl bg-white p-6 shadow-xl shadow-slate-200 sm:p-8">
           <h1 className="text-3xl font-semibold text-slate-900">Register for FGBI</h1>
           <p className="mt-2 text-slate-600">
             The app cannot connect to Supabase because the public environment variables are not set.
@@ -79,8 +79,8 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 p-6">
-      <div className="mx-auto max-w-2xl rounded-3xl bg-white p-8 shadow-xl shadow-slate-200">
+    <main className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 sm:py-8">
+      <div className="mx-auto w-full max-w-2xl rounded-3xl bg-white p-6 shadow-xl shadow-slate-200 sm:p-8">
         <h1 className="text-3xl font-semibold text-slate-900">Register for FGBI</h1>
         <p className="mt-2 text-slate-600">
           Create a student or teacher account. All registrations are processed by the admin.

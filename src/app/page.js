@@ -1,9 +1,7 @@
-import Link from "next/link";
-
 export default function Home() {
   return (
-    <main className="min-h-screen bg-slate-50 p-6">
-      <div className="mx-auto max-w-4xl rounded-3xl bg-white p-8 shadow-xl shadow-slate-200">
+    <main className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 sm:py-8">
+      <div className="mx-auto w-full max-w-3xl rounded-3xl bg-white p-6 shadow-xl shadow-slate-200 sm:p-8">
         <div className="mb-10 text-center">
           <p className="text-sm uppercase tracking-[0.3em] text-sky-600">
             FGBI Grading System
@@ -16,25 +14,7 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="grid gap-5 sm:grid-cols-2">
-          <Link
-            href="/login"
-            className="rounded-3xl border border-slate-200 bg-slate-950 px-6 py-8 text-center text-white transition hover:bg-slate-800"
-          >
-            <h2 className="text-xl font-semibold mb-2">Login</h2>
-            <p>Sign in with your school email.</p>
-          </Link>
-
-          <Link
-            href="/register"
-            className="rounded-3xl border border-slate-200 bg-sky-600 px-6 py-8 text-center text-white transition hover:bg-sky-500"
-          >
-            <h2 className="text-xl font-semibold mb-2">Register</h2>
-            <p>Create a student or teacher account for FGBI.</p>
-          </Link>
-        </div>
-
-        <div className="mt-10 rounded-3xl bg-slate-50 p-6 text-slate-700 shadow-inner">
+        <div className="rounded-3xl border border-slate-200 bg-slate-50 p-6 text-slate-700 shadow-inner">
           <h3 className="text-lg font-semibold mb-3">How it works</h3>
           <ul className="space-y-2 text-sm leading-6">
             <li>• Students register and wait for admin approval.</li>
