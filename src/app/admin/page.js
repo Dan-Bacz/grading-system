@@ -3,30 +3,36 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import Sidebar from "@/components/Sidebar";
+
+const adminMenu = [
+  { key: "dashboard", label: "Dashboard" },
+  { key: "approve", label: "Approve Accounts" },
+  { key: "faculty", label: "Faculty List" },
+  { key: "students", label: "Student List" },
+  { key: "grades", label: "Grades" },
+  { key: "enrollment", label: "Enrollment" },
+  { key: "system", label: "System Info" },
+  { key: "logs", label: "Logs" },
+  { key: "settings", label: "Settings" },
+];
 
 export default function AdminPage() {
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [profile, setProfile] = useState(null);
   const [pendingUsers, setPendingUsers] = useState([]);
   const [teachers, setTeachers] = useState([]);
   const [students, setStudents] = useState([]);
+  const [grades, setGrades] = useState([]);
+  const [semesterName, setSemesterName] = useState("");
+  const [subjectName, setSubjectName] = useState("");
   const [selectedTeacher, setSelectedTeacher] = useState("");
-  const [assignedSubject, setAssignedSubject] = useState("");
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [semesters, setSemesters] = useState([]);
+  const [subjects, setSubjects] = useState([]);
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
-
-  async function refreshLists() {
-    const [{ data: pending }, { data: teacherData }, { data: studentData }] = await Promise.all([
-      supabase.from("profiles").select("*").eq("status", "pending").order("created_at", { ascending: false }),
-      supabase.from("profiles").select("*").eq("role", "teacher").order("created_at", { ascending: false }),
-      supabase.from("profiles").select("*").eq("role", "student").order("created_at", { ascending: false }),
-    ]);
-
-    setPendingUsers(pending || []);
-    setTeachers(teacherData || []);
-    setStudents(studentData || []);
-  }
 
   useEffect(() => {
     async function loadAdmin() {
@@ -57,21 +63,36 @@ export default function AdminPage() {
       }
 
       setProfile(data);
-      await refreshLists();
+      await refreshData();
       setLoading(false);
     }
 
     loadAdmin();
   }, [router]);
 
+  async function refreshData() {
+    const [{ data: pending }, { data: teacherData }, { data: studentData }, { data: gradeData }] = await Promise.all([
+      supabase.from("profiles").select("*").eq("status", "pending").order("created_at", { ascending: false }),
+      supabase.from("profiles").select("*").eq("role", "teacher").order("created_at", { ascending: false }),
+      supabase.from("profiles").select("*").eq("role", "student").order("created_at", { ascending: false }),
+      supabase.from("grades").select("*").order("created_at", { ascending: false }),
+    ]);
+
+    setPendingUsers(pending || []);
+    setTeachers(teacherData || []);
+    setStudents(studentData || []);
+    setGrades(gradeData || []);
+  }
+
   async function approveUser(userId) {
     setMessage("");
+    setError("");
     const { error } = await supabase.from("profiles").update({ status: "active" }).eq("user_id", userId);
     if (error) {
       setError(error.message);
       return;
     }
-    await refreshLists();
+    await refreshData();
     setMessage("Approved successfully.");
   }
 
@@ -80,14 +101,14 @@ export default function AdminPage() {
     setMessage("");
     setError("");
 
-    if (!selectedTeacher || !assignedSubject) {
-      setError("Select a teacher and a subject.");
+    if (!selectedTeacher || !subjectName) {
+      setError("Select a teacher and enter a subject.");
       return;
     }
 
     const { error } = await supabase
       .from("profiles")
-      .update({ assigned_subject: assignedSubject, status: "active" })
+      .update({ assigned_subject: subjectName, status: "active" })
       .eq("user_id", selectedTeacher);
 
     if (error) {
@@ -95,10 +116,45 @@ export default function AdminPage() {
       return;
     }
 
-    await refreshLists();
     setMessage("Subject assigned to teacher.");
-    setAssignedSubject("");
     setSelectedTeacher("");
+    setSubjectName("");
+    await refreshData();
+  }
+
+  function handleAddSemester(event) {
+    event.preventDefault();
+    setMessage("");
+    setError("");
+
+    if (!semesterName.trim()) {
+      setError("Provide a semester name.");
+      return;
+    }
+
+    setSemesters((current) => [...current, { id: Date.now().toString(), name: semesterName.trim() }]);
+    setSemesterName("");
+    setMessage("Semester added.");
+  }
+
+  function handleAddSubject(event) {
+    event.preventDefault();
+    setMessage("");
+    setError("");
+
+    if (!subjectName.trim()) {
+      setError("Provide a subject name.");
+      return;
+    }
+
+    setSubjects((current) => [...current, { id: Date.now().toString(), name: subjectName.trim() }]);
+    setSubjectName("");
+    setMessage("Subject added.");
+  }
+
+  function handleSignOut() {
+    supabase.auth.signOut();
+    router.push("/");
   }
 
   if (loading) {
@@ -111,31 +167,42 @@ export default function AdminPage() {
     );
   }
 
-  return (
-    <main className="min-h-screen bg-slate-50 p-6">
-      <div className="mx-auto max-w-5xl space-y-8">
-        <section className="rounded-3xl bg-white p-8 shadow-xl shadow-slate-200">
-          <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
-            <div>
-              <p className="text-sm uppercase tracking-[0.2em] text-sky-600">Admin Panel</p>
-              <h1 className="mt-3 text-3xl font-semibold text-slate-900">{profile.full_name}</h1>
+  const renderActivePane = () => {
+    switch (activeTab) {
+      case "dashboard":
+        return (
+          <div className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+                <p className="text-sm text-slate-500">Pending approvals</p>
+                <p className="mt-4 text-3xl font-semibold text-slate-900">{pendingUsers.length}</p>
+              </div>
+              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+                <p className="text-sm text-slate-500">Teachers</p>
+                <p className="mt-4 text-3xl font-semibold text-slate-900">{teachers.length}</p>
+              </div>
+              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+                <p className="text-sm text-slate-500">Students</p>
+                <p className="mt-4 text-3xl font-semibold text-slate-900">{students.length}</p>
+              </div>
             </div>
-            <p className="rounded-2xl bg-slate-100 px-4 py-2 text-slate-700">Manage system users and subject assignments</p>
+            <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+              <h3 className="text-xl font-semibold text-slate-900">Quick summary</h3>
+              <p className="mt-3 text-slate-600">Use the sidebar to manage approvals, faculty, subjects, and student enrollment for each semester.</p>
+            </div>
           </div>
-        </section>
-
-        <section className="grid gap-6 xl:grid-cols-2">
-          <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-            <h2 className="text-xl font-semibold text-slate-900">Approve accounts</h2>
-            <p className="mt-2 text-slate-600">Review pending teacher and student accounts.</p>
-
-            <div className="mt-6 space-y-4">
-              {pendingUsers.length === 0 ? (
-                <p className="text-slate-600">No pending accounts at the moment.</p>
-              ) : (
-                pendingUsers.map((user) => (
+        );
+      case "approve":
+        return (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-slate-900">Pending accounts</h3>
+            {pendingUsers.length === 0 ? (
+              <p className="text-slate-600">No pending accounts right now.</p>
+            ) : (
+              <div className="space-y-4">
+                {pendingUsers.map((user) => (
                   <div key={user.user_id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                    <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div>
                         <p className="font-semibold text-slate-900">{user.full_name}</p>
                         <p className="text-sm text-slate-600">{user.email} · {user.role}</p>
@@ -148,68 +215,186 @@ export default function AdminPage() {
                       </button>
                     </div>
                   </div>
-                ))
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      case "faculty":
+        return (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-slate-900">Faculty list</h3>
+            {teachers.length === 0 ? (
+              <p className="text-slate-600">No teachers have been created yet.</p>
+            ) : (
+              <div className="grid gap-4">
+                {teachers.map((teacher) => (
+                  <div key={teacher.user_id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="font-semibold text-slate-900">{teacher.full_name}</p>
+                    <p className="text-sm text-slate-600">Subject: {teacher.assigned_subject || "Not assigned"}</p>
+                    <p className="text-sm text-slate-600">Email: {teacher.email}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      case "students":
+        return (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-slate-900">Student list</h3>
+            {students.length === 0 ? (
+              <p className="text-slate-600">No students are active yet.</p>
+            ) : (
+              <div className="grid gap-4">
+                {students.map((student) => (
+                  <div key={student.user_id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="font-semibold text-slate-900">{student.full_name}</p>
+                    <p className="text-sm text-slate-600">Email: {student.email}</p>
+                    <p className="text-sm text-slate-600">Status: {student.status}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      case "grades":
+        return (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-slate-900">Grades overview</h3>
+            {grades.length === 0 ? (
+              <p className="text-slate-600">No grades have been entered yet.</p>
+            ) : (
+              <div className="space-y-4">
+                {grades.map((grade) => (
+                  <div key={grade.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="font-semibold text-slate-900">Subject: {grade.subject}</p>
+                    <p className="text-sm text-slate-600">Student ID: {grade.student_id}</p>
+                    <p className="text-sm text-slate-600">Teacher ID: {grade.teacher_id}</p>
+                    <p className="text-sm text-slate-600">Score: {grade.score}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      case "enrollment":
+        return (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-slate-900">Enrollment and semesters</h3>
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="rounded-3xl bg-slate-50 p-6">
+                <h4 className="text-lg font-semibold text-slate-900">Add new semester</h4>
+                <form onSubmit={handleAddSemester} className="mt-4 space-y-4">
+                  <input
+                    value={semesterName}
+                    onChange={(event) => setSemesterName(event.target.value)}
+                    placeholder="Semester name"
+                    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 focus:border-sky-500 focus:outline-none"
+                  />
+                  <button className="rounded-2xl bg-sky-600 px-5 py-3 text-white transition hover:bg-sky-500">Add Semester</button>
+                </form>
+              </div>
+              <div className="rounded-3xl bg-slate-50 p-6">
+                <h4 className="text-lg font-semibold text-slate-900">Add new subject</h4>
+                <form onSubmit={handleAddSubject} className="mt-4 space-y-4">
+                  <input
+                    value={subjectName}
+                    onChange={(event) => setSubjectName(event.target.value)}
+                    placeholder="Subject name"
+                    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 focus:border-sky-500 focus:outline-none"
+                  />
+                  <button className="rounded-2xl bg-sky-600 px-5 py-3 text-white transition hover:bg-sky-500">Save Subject</button>
+                </form>
+              </div>
+            </div>
+
+            <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+              <h4 className="text-lg font-semibold text-slate-900">Current subjects</h4>
+              {subjects.length === 0 ? (
+                <p className="mt-4 text-slate-600">No subjects created yet.</p>
+              ) : (
+                <div className="mt-4 grid gap-3">
+                  {subjects.map((subject) => (
+                    <div key={subject.id} className="rounded-3xl bg-slate-50 p-4">
+                      <p className="font-semibold text-slate-900">{subject.name}</p>
+                    </div>
+                  ))}
+                </div>
               )}
             </div>
           </div>
-
-          <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-            <h2 className="text-xl font-semibold text-slate-900">Assign teacher subject</h2>
-            <p className="mt-2 text-slate-600">Give teachers their subject and activate their accounts.</p>
-
-            <form onSubmit={assignSubject} className="mt-6 space-y-4">
-              <label className="block">
-                <span className="text-sm font-medium text-slate-700">Teacher</span>
-                <select
-                  value={selectedTeacher}
-                  onChange={(event) => setSelectedTeacher(event.target.value)}
-                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 focus:border-sky-500 focus:outline-none"
-                >
-                  <option value="">Select a teacher</option>
-                  {teachers.map((teacher) => (
-                    <option key={teacher.user_id} value={teacher.user_id}>
-                      {teacher.full_name} {teacher.assigned_subject ? `(${teacher.assigned_subject})` : ""}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="block">
-                <span className="text-sm font-medium text-slate-700">Subject</span>
-                <input
-                  value={assignedSubject}
-                  onChange={(event) => setAssignedSubject(event.target.value)}
-                  placeholder="e.g. Science"
-                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 focus:border-sky-500 focus:outline-none"
-                />
-              </label>
-
-              <button className="rounded-2xl bg-sky-600 px-5 py-3 text-white transition hover:bg-sky-500">
-                Assign Subject
-              </button>
-            </form>
-
-            {message ? <p className="mt-4 text-sm text-slate-700">{message}</p> : null}
-            {error ? <p className="mt-4 text-sm text-red-600">{error}</p> : null}
+        );
+      case "system":
+        return (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-slate-900">System information</h3>
+            <div className="grid gap-6 md:grid-cols-2">
+              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+                <p className="font-semibold text-slate-900">Active subjects</p>
+                <p className="mt-3 text-slate-600">{subjects.length}</p>
+              </div>
+              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+                <p className="font-semibold text-slate-900">Active semesters</p>
+                <p className="mt-3 text-slate-600">{semesters.length}</p>
+              </div>
+            </div>
           </div>
-        </section>
-
-        <section className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-          <h2 className="text-xl font-semibold text-slate-900">Active students</h2>
-          <div className="mt-4 grid gap-4 md:grid-cols-2">
-            {students.length === 0 ? (
-              <p className="text-slate-600">No students created yet.</p>
-            ) : (
-              students.map((student) => (
-                <div key={student.user_id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                  <p className="font-semibold text-slate-900">{student.full_name}</p>
-                  <p className="text-sm text-slate-600">{student.email}</p>
-                  <p className="text-sm text-slate-600">Status: {student.status}</p>
-                </div>
-              ))
-            )}
+        );
+      case "logs":
+        return (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-slate-900">System logs</h3>
+            <div className="rounded-3xl bg-slate-50 p-6 text-slate-600">
+              <p>Log messages are not available in this demo UI yet.</p>
+              <p className="mt-4">When connected to a real audit service, this view shows recent admin actions, login attempts, and grade changes.</p>
+            </div>
           </div>
-        </section>
+        );
+      case "settings":
+        return (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-slate-900">Settings</h3>
+            <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+              <p className="text-slate-600">Email: {profile.email}</p>
+              <p className="mt-2 text-slate-600">Name: {profile.full_name}</p>
+              <p className="mt-2 text-slate-600">Role: {profile.role}</p>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <main className="min-h-screen bg-slate-50 p-6">
+      <div className="mx-auto flex min-h-[calc(100vh-48px)] flex-col gap-6 lg:flex-row">
+        <Sidebar
+          title="FGBI Admin"
+          menuItems={adminMenu}
+          activeKey={activeTab}
+          onSelect={setActiveTab}
+          profile={profile}
+          onSignOut={handleSignOut}
+        />
+
+        <div className="flex-1 space-y-6">
+          <section className="rounded-3xl bg-white p-8 shadow-xl shadow-slate-200">
+            <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+              <div>
+                <p className="text-sm uppercase tracking-[0.2em] text-sky-600">Admin panel</p>
+                <h1 className="mt-3 text-3xl font-semibold text-slate-900">{profile.full_name}</h1>
+                <p className="mt-2 text-slate-600">Manage students, teachers, subjects, enrollment, and system settings.</p>
+              </div>
+            </div>
+          </section>
+
+          {message ? <div className="rounded-3xl bg-emerald-50 p-4 text-emerald-800 shadow-sm">{message}</div> : null}
+          {error ? <div className="rounded-3xl bg-rose-50 p-4 text-rose-800 shadow-sm">{error}</div> : null}
+
+          <section className="rounded-3xl bg-white p-8 shadow-xl shadow-slate-200">{renderActivePane()}</section>
+        </div>
       </div>
     </main>
   );

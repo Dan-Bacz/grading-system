@@ -3,13 +3,26 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import Sidebar from "@/components/Sidebar";
+
+const studentMenu = [
+  { key: "dashboard", label: "Dashboard" },
+  { key: "grades", label: "Grades" },
+  { key: "enrollment", label: "Enrollment" },
+  { key: "report", label: "Report Card" },
+  { key: "settings", label: "Settings" },
+];
 
 export default function StudentPage() {
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [profile, setProfile] = useState(null);
   const [grades, setGrades] = useState([]);
   const [teachers, setTeachers] = useState([]);
+  const [enrolledSubjects, setEnrolledSubjects] = useState([]);
+  const [selectedSubject, setSelectedSubject] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [message, setMessage] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -48,11 +61,12 @@ export default function StudentPage() {
     async function refreshData(studentId) {
       const [gradeData, teacherData] = await Promise.all([
         supabase.from("grades").select("*").eq("student_id", studentId).order("created_at", { ascending: false }),
-        supabase.from("profiles").select("user_id, full_name").eq("role", "teacher"),
+        supabase.from("profiles").select("user_id, full_name, assigned_subject").eq("role", "teacher"),
       ]);
 
       setGrades(gradeData.data || []);
       setTeachers(teacherData.data || []);
+      setEnrolledSubjects(gradeData.data?.map((grade) => grade.subject) || []);
     }
 
     loadStudent();
@@ -62,6 +76,37 @@ export default function StudentPage() {
     () => teachers.reduce((acc, teacher) => ({ ...acc, [teacher.user_id]: teacher.full_name }), {}),
     [teachers]
   );
+
+  const availableSubjects = useMemo(() => {
+    return teachers
+      .map((teacher) => ({ subject: teacher.assigned_subject, teacher: teacher.full_name }))
+      .filter((item) => item.subject);
+  }, [teachers]);
+
+  function handleEnroll(event) {
+    event.preventDefault();
+    setMessage("");
+    setError("");
+
+    if (!selectedSubject) {
+      setError("Choose a subject to enroll.");
+      return;
+    }
+
+    if (enrolledSubjects.includes(selectedSubject)) {
+      setError("You are already enrolled in this subject.");
+      return;
+    }
+
+    setEnrolledSubjects((current) => [...current, selectedSubject]);
+    setSelectedSubject("");
+    setMessage("Enrolled successfully.");
+  }
+
+  function handleSignOut() {
+    supabase.auth.signOut();
+    router.push("/");
+  }
 
   if (loading) {
     return (
@@ -83,38 +128,153 @@ export default function StudentPage() {
     );
   }
 
-  return (
-    <main className="min-h-screen bg-slate-50 p-6">
-      <div className="mx-auto max-w-4xl space-y-8">
-        <section className="rounded-3xl bg-white p-8 shadow-xl shadow-slate-200">
-          <p className="text-sm uppercase tracking-[0.2em] text-sky-600">Student Portal</p>
-          <h1 className="mt-3 text-3xl font-semibold text-slate-900">{profile.full_name}</h1>
-          <p className="mt-2 text-slate-600">Account status: {profile.status}</p>
-        </section>
-
-        <section className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-          <h2 className="text-xl font-semibold text-slate-900">Your Grades</h2>
-          {profile.status !== "active" ? (
-            <p className="mt-4 text-slate-600">Your account is pending admin approval. Grades will appear once your account is active.</p>
-          ) : grades.length === 0 ? (
-            <p className="mt-4 text-slate-600">No grades available yet. Your teacher will add your grades when they become available.</p>
-          ) : (
-            <div className="mt-4 space-y-4">
-              {grades.map((grade) => (
-                <div key={grade.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                  <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
-                    <div>
+  const renderActivePane = () => {
+    switch (activeTab) {
+      case "dashboard":
+        return (
+          <div className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+                <p className="text-sm text-slate-500">Year level</p>
+                <p className="mt-4 text-3xl font-semibold text-slate-900">{profile.year_level || "Not set"}</p>
+              </div>
+              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+                <p className="text-sm text-slate-500">Enrolled subjects</p>
+                <p className="mt-4 text-3xl font-semibold text-slate-900">{enrolledSubjects.length}</p>
+              </div>
+              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+                <p className="text-sm text-slate-500">Grades available</p>
+                <p className="mt-4 text-3xl font-semibold text-slate-900">{grades.length}</p>
+              </div>
+            </div>
+            <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+              <h3 className="text-xl font-semibold text-slate-900">Welcome to your student portal</h3>
+              <p className="mt-3 text-slate-600">Use the sidebar to review your grades, enroll in subjects, and print your report card.</p>
+            </div>
+          </div>
+        );
+      case "grades":
+        return (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-slate-900">Grades</h3>
+            {grades.length === 0 ? (
+              <p className="text-slate-600">You have no grades yet.</p>
+            ) : (
+              <div className="space-y-4">
+                {grades.map((grade) => (
+                  <div key={grade.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                    <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
+                      <div>
+                        <p className="font-semibold text-slate-900">{grade.subject}</p>
+                        <p className="text-sm text-slate-600">Score: {grade.score}</p>
+                      </div>
+                      <p className="text-sm text-slate-600">Teacher: {teacherMap[grade.teacher_id] || "Unknown"}</p>
+                    </div>
+                    {grade.comment ? <p className="mt-3 text-sm text-slate-600">Comment: {grade.comment}</p> : null}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        );
+      case "enrollment":
+        return (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-slate-900">Enrollment</h3>
+            <p className="text-slate-600">Enroll based on your year level. Only subjects available for your year will appear here.</p>
+            <form onSubmit={handleEnroll} className="space-y-4 rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+              <label className="block">
+                <span className="text-sm font-medium text-slate-700">Subject</span>
+                <select
+                  value={selectedSubject}
+                  onChange={(event) => setSelectedSubject(event.target.value)}
+                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 focus:border-sky-500 focus:outline-none"
+                >
+                  <option value="">Select a subject</option>
+                  {availableSubjects.map((item) => (
+                    <option key={item.subject} value={item.subject}>
+                      {item.subject} — {item.teacher}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <button className="rounded-2xl bg-sky-600 px-5 py-3 text-white transition hover:bg-sky-500">Enroll</button>
+              {message ? <p className="text-slate-700">{message}</p> : null}
+              {error ? <p className="text-red-600">{error}</p> : null}
+            </form>
+            <div className="rounded-3xl bg-slate-50 p-6 text-slate-600">
+              <p>Available subjects are drawn from teacher assignments. If no subjects appear, ask the admin to assign teachers and subjects.</p>
+            </div>
+          </div>
+        );
+      case "report":
+        return (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-slate-900">Report Card</h3>
+            <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+              <p className="text-slate-600">This report card includes all enrolled subjects and grade scores.</p>
+              {grades.length === 0 ? (
+                <p className="mt-4 text-slate-600">No grades are available to print.</p>
+              ) : (
+                <div className="mt-4 space-y-3">
+                  {grades.map((grade) => (
+                    <div key={grade.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
                       <p className="font-semibold text-slate-900">{grade.subject}</p>
                       <p className="text-sm text-slate-600">Score: {grade.score}</p>
                     </div>
-                    <p className="text-sm text-slate-600">Teacher: {teacherMap[grade.teacher_id] || "Unknown"}</p>
-                  </div>
-                  {grade.comment ? <p className="mt-3 text-sm text-slate-600">Comment: {grade.comment}</p> : null}
+                  ))}
                 </div>
-              ))}
+              )}
+              <button onClick={() => window.print()} className="mt-6 rounded-2xl bg-sky-600 px-5 py-3 text-white transition hover:bg-sky-500">
+                Print Report Card
+              </button>
             </div>
-          )}
-        </section>
+          </div>
+        );
+      case "settings":
+        return (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-slate-900">Settings</h3>
+            <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+              <p className="text-slate-600">Name: {profile.full_name}</p>
+              <p className="mt-2 text-slate-600">Email: {profile.email}</p>
+              <p className="mt-2 text-slate-600">Year level: {profile.year_level || "Not set"}</p>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <main className="min-h-screen bg-slate-50 p-6">
+      <div className="mx-auto flex min-h-[calc(100vh-48px)] flex-col gap-6 lg:flex-row">
+        <Sidebar
+          title="FGBI Student"
+          menuItems={studentMenu}
+          activeKey={activeTab}
+          onSelect={setActiveTab}
+          profile={profile}
+          onSignOut={handleSignOut}
+        />
+
+        <div className="flex-1 space-y-6">
+          <section className="rounded-3xl bg-white p-8 shadow-xl shadow-slate-200">
+            <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+              <div>
+                <p className="text-sm uppercase tracking-[0.2em] text-sky-600">Student portal</p>
+                <h1 className="mt-3 text-3xl font-semibold text-slate-900">{profile.full_name}</h1>
+                <p className="mt-2 text-slate-600">View your grades, enroll in subjects, and print your report card.</p>
+              </div>
+            </div>
+          </section>
+
+          {message ? <div className="rounded-3xl bg-emerald-50 p-4 text-emerald-800 shadow-sm">{message}</div> : null}
+          {error ? <div className="rounded-3xl bg-rose-50 p-4 text-rose-800 shadow-sm">{error}</div> : null}
+
+          <section className="rounded-3xl bg-white p-8 shadow-xl shadow-slate-200">{renderActivePane()}</section>
+        </div>
       </div>
     </main>
   );

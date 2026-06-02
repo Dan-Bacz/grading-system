@@ -3,8 +3,18 @@
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
+import Sidebar from "@/components/Sidebar";
+
+const teacherMenu = [
+  { key: "dashboard", label: "Dashboard" },
+  { key: "subjects", label: "Subjects" },
+  { key: "students", label: "My Students" },
+  { key: "reports", label: "Reports" },
+  { key: "settings", label: "Settings" },
+];
 
 export default function TeacherPage() {
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [profile, setProfile] = useState(null);
   const [students, setStudents] = useState([]);
   const [grades, setGrades] = useState([]);
@@ -14,6 +24,7 @@ export default function TeacherPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
+  const [sortBy, setSortBy] = useState("subject");
   const router = useRouter();
 
   useEffect(() => {
@@ -76,6 +87,13 @@ export default function TeacherPage() {
     [students]
   );
 
+  const sortedStudents = useMemo(() => {
+    if (sortBy === "subject") {
+      return [...students].sort((a, b) => (a.assigned_subject || "").localeCompare(b.assigned_subject || ""));
+    }
+    return [...students].sort((a, b) => (a.year_level || "").localeCompare(b.year_level || ""));
+  }, [students, sortBy]);
+
   async function submitGrade(event) {
     event.preventDefault();
     setError("");
@@ -117,6 +135,11 @@ export default function TeacherPage() {
     setGrades(data || []);
   }
 
+  function handleSignOut() {
+    supabase.auth.signOut();
+    router.push("/");
+  }
+
   if (loading) {
     return (
       <main className="min-h-screen bg-slate-50 p-6">
@@ -127,87 +150,143 @@ export default function TeacherPage() {
     );
   }
 
-  return (
-    <main className="min-h-screen bg-slate-50 p-6">
-      <div className="mx-auto max-w-5xl space-y-8">
-        <section className="rounded-3xl bg-white p-8 shadow-xl shadow-slate-200">
-          <p className="text-sm uppercase tracking-[0.2em] text-sky-600">Teacher Dashboard</p>
-          <h1 className="mt-3 text-3xl font-semibold text-slate-900">{profile.full_name}</h1>
-          <p className="mt-2 text-slate-600">Assigned subject: {profile.assigned_subject || "Not assigned yet"}</p>
-        </section>
-
-        <section className="grid gap-6 xl:grid-cols-2">
-          <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-            <h2 className="text-xl font-semibold text-slate-900">Add student grade</h2>
-            {profile.assigned_subject ? (
-              <form onSubmit={submitGrade} className="mt-6 space-y-4">
-                <label className="block">
-                  <span className="text-sm font-medium text-slate-700">Student</span>
-                  <select
-                    value={selectedStudent}
-                    onChange={(event) => setSelectedStudent(event.target.value)}
-                    className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 focus:border-sky-500 focus:outline-none"
-                  >
-                    <option value="">Select a student</option>
-                    {students.map((student) => (
-                      <option key={student.user_id} value={student.user_id}>
-                        {student.full_name}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-
-                <label className="block">
-                  <span className="text-sm font-medium text-slate-700">Score</span>
-                  <input
-                    type="number"
-                    value={score}
-                    onChange={(event) => setScore(event.target.value)}
-                    className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 focus:border-sky-500 focus:outline-none"
-                    min="0"
-                  />
-                </label>
-
-                <label className="block">
-                  <span className="text-sm font-medium text-slate-700">Comment</span>
-                  <textarea
-                    value={comment}
-                    onChange={(event) => setComment(event.target.value)}
-                    className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 focus:border-sky-500 focus:outline-none"
-                    rows="3"
-                  />
-                </label>
-
-                {error ? <p className="text-sm text-red-600">{error}</p> : null}
-                {message ? <p className="text-sm text-slate-700">{message}</p> : null}
-
-                <button className="rounded-2xl bg-sky-600 px-5 py-3 text-white transition hover:bg-sky-500">
-                  Add Grade
-                </button>
-              </form>
-            ) : (
-              <p className="mt-4 text-slate-600">You must wait for an admin to assign your subject before adding grades.</p>
-            )}
+  const renderActivePane = () => {
+    switch (activeTab) {
+      case "dashboard":
+        return (
+          <div className="space-y-6">
+            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+                <p className="text-sm text-slate-500">Assigned subject</p>
+                <p className="mt-4 text-3xl font-semibold text-slate-900">{profile.assigned_subject || "Not set"}</p>
+              </div>
+              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+                <p className="text-sm text-slate-500">Managed students</p>
+                <p className="mt-4 text-3xl font-semibold text-slate-900">{students.length}</p>
+              </div>
+              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+                <p className="text-sm text-slate-500">Grades recorded</p>
+                <p className="mt-4 text-3xl font-semibold text-slate-900">{grades.length}</p>
+              </div>
+            </div>
+            <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+              <h3 className="text-xl font-semibold text-slate-900">Overview</h3>
+              <p className="mt-3 text-slate-600">View the subjects assigned by the admin, manage your students, and review all grade entries in this panel.</p>
+            </div>
           </div>
-
-          <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-            <h2 className="text-xl font-semibold text-slate-900">Your grading history</h2>
-            {grades.length === 0 ? (
-              <p className="mt-4 text-slate-600">No grades recorded yet.</p>
+        );
+      case "subjects":
+        return (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-slate-900">My subjects</h3>
+            <div className="rounded-3xl bg-slate-50 p-6 shadow-inner shadow-slate-200">
+              <p className="text-slate-700">Assigned subject:</p>
+              <p className="mt-2 text-2xl font-semibold text-slate-900">{profile.assigned_subject || "Waiting for assignment"}</p>
+            </div>
+            <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+              <h4 className="text-lg font-semibold text-slate-900">Students in this subject</h4>
+              {grades.length === 0 ? (
+                <p className="mt-4 text-slate-600">No students have grades yet for this subject.</p>
+              ) : (
+                <div className="mt-4 space-y-3">
+                  {grades.map((grade) => (
+                    <div key={grade.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                      <p className="font-semibold text-slate-900">{studentMap[grade.student_id] || grade.student_id}</p>
+                      <p className="text-sm text-slate-600">Score: {grade.score}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+      case "students":
+        return (
+          <div className="space-y-6">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+              <div>
+                <h3 className="text-xl font-semibold text-slate-900">My students</h3>
+                <p className="mt-2 text-slate-600">Sort students by subject or year level.</p>
+              </div>
+              <select
+                value={sortBy}
+                onChange={(event) => setSortBy(event.target.value)}
+                className="rounded-2xl border border-slate-300 bg-white px-4 py-3 text-sm focus:border-sky-500 focus:outline-none"
+              >
+                <option value="subject">Sort by subject</option>
+                <option value="year">Sort by year level</option>
+              </select>
+            </div>
+            {sortedStudents.length === 0 ? (
+              <p className="text-slate-600">No active students to display.</p>
             ) : (
-              <div className="mt-4 space-y-4">
-                {grades.map((grade) => (
-                  <div key={grade.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                    <p className="font-semibold text-slate-900">{studentMap[grade.student_id] || grade.student_id}</p>
-                    <p className="text-sm text-slate-600">Subject: {grade.subject}</p>
-                    <p className="text-sm text-slate-600">Score: {grade.score}</p>
-                    {grade.comment ? <p className="text-sm text-slate-600">Comment: {grade.comment}</p> : null}
+              <div className="grid gap-4">
+                {sortedStudents.map((student) => (
+                  <div key={student.user_id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                    <p className="font-semibold text-slate-900">{student.full_name}</p>
+                    <p className="text-sm text-slate-600">Subject: {student.assigned_subject || "N/A"}</p>
+                    <p className="text-sm text-slate-600">Year: {student.year_level || "Not set"}</p>
                   </div>
                 ))}
               </div>
             )}
           </div>
-        </section>
+        );
+      case "reports":
+        return (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-slate-900">Reports</h3>
+            <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+              <p className="text-slate-600">Total grades recorded:</p>
+              <p className="mt-3 text-3xl font-semibold text-slate-900">{grades.length}</p>
+              <p className="mt-4 text-slate-600">Use this view to see student performance per subject and school year.</p>
+            </div>
+          </div>
+        );
+      case "settings":
+        return (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-slate-900">Settings</h3>
+            <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+              <p className="text-slate-600">Email: {profile.email}</p>
+              <p className="mt-2 text-slate-600">Name: {profile.full_name}</p>
+              <p className="mt-2 text-slate-600">Subject: {profile.assigned_subject || "Not assigned"}</p>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <main className="min-h-screen bg-slate-50 p-6">
+      <div className="mx-auto flex min-h-[calc(100vh-48px)] flex-col gap-6 lg:flex-row">
+        <Sidebar
+          title="FGBI Teacher"
+          menuItems={teacherMenu}
+          activeKey={activeTab}
+          onSelect={setActiveTab}
+          profile={profile}
+          onSignOut={handleSignOut}
+        />
+
+        <div className="flex-1 space-y-6">
+          <section className="rounded-3xl bg-white p-8 shadow-xl shadow-slate-200">
+            <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
+              <div>
+                <p className="text-sm uppercase tracking-[0.2em] text-sky-600">Teacher dashboard</p>
+                <h1 className="mt-3 text-3xl font-semibold text-slate-900">{profile.full_name}</h1>
+                <p className="mt-2 text-slate-600">Manage your assigned subjects, view students, and submit grades.</p>
+              </div>
+            </div>
+          </section>
+
+          {message ? <div className="rounded-3xl bg-emerald-50 p-4 text-emerald-800 shadow-sm">{message}</div> : null}
+          {error ? <div className="rounded-3xl bg-rose-50 p-4 text-rose-800 shadow-sm">{error}</div> : null}
+
+          <section className="rounded-3xl bg-white p-8 shadow-xl shadow-slate-200">{renderActivePane()}</section>
+        </div>
       </div>
     </main>
   );
