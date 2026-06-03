@@ -38,65 +38,107 @@ export default function RegisterPage() {
     setMessage("");
     setLoading(true);
 
-    const profileData = {
+    const requestBody = {
+      email,
+      password,
       full_name: fullName,
       role,
       phone,
       address,
-      status: "pending",
-      assigned_subject: role === "teacher" ? subjectPreference : null,
+      assigned_subject: role === 'teacher' ? subjectPreference : null,
     };
 
-    const { data, error: authError } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        data: profileData,
-      },
+    const response = await fetch('/api/register', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(requestBody),
     });
 
-    if (authError) {
-      setError(authError.message);
+    const result = await response.json();
+
+    if (!response.ok) {
+      const serviceRoleMissing = result.error?.toLowerCase().includes('service role');
+      if (serviceRoleMissing) {
+        const profileData = {
+          full_name: fullName,
+          role,
+          phone,
+          address,
+          status: 'pending',
+          assigned_subject: role === 'teacher' ? subjectPreference : null,
+        };
+
+        const { data, error: authError } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: profileData,
+          },
+        });
+
+        if (authError) {
+          setError(authError.message);
+          setLoading(false);
+          return;
+        }
+
+        let profileNote = '';
+        try {
+          const userId = data?.user?.id ?? null;
+          if (userId) {
+            const profileResponse = await fetch('/api/profiles', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                user_id: userId,
+                email,
+                full_name: fullName,
+                role,
+                phone,
+                address,
+                assigned_subject: role === 'teacher' ? subjectPreference : null,
+                status: 'pending',
+              }),
+            });
+            const profileResult = await profileResponse.json();
+            if (!profileResponse.ok) {
+              profileNote = ` Profile metadata creation failed: ${profileResult.error || 'unknown error'}`;
+              console.error('Profile API error', profileResult);
+            }
+          } else {
+            profileNote = ' Profile metadata could not be created because the user id was unavailable.';
+          }
+        } catch (e) {
+          profileNote = ` Profile metadata creation failed: ${e.message || e}`;
+          console.error('profile create failed', e);
+        }
+
+        setLoading(false);
+        setMessage(
+          `Registration submitted. Please check your email for confirmation and wait for admin approval.${profileNote}`
+        );
+        setFullName('');
+        setEmail('');
+        setPassword('');
+        setPhone('');
+        setAddress('');
+        setSubjectPreference('');
+        return;
+      }
+
+      setError(result.error || 'Registration failed.');
       setLoading(false);
       return;
     }
 
-    // Try to create a profiles row server-side so admins see the pending account immediately.
-    let profileNote = '';
-    try {
-      const userId = data?.user?.id ?? null;
-      if (userId) {
-        const profileResponse = await fetch('/api/profiles', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            user_id: userId,
-            email,
-            full_name: fullName,
-            role,
-            phone,
-            address,
-            assigned_subject: role === 'teacher' ? subjectPreference : null,
-            status: 'pending',
-          }),
-        });
-        const profileResult = await profileResponse.json();
-        if (!profileResponse.ok) {
-          profileNote = ` Profile metadata creation failed: ${profileResult.error || 'unknown error'}`;
-          console.error('Profile API error', profileResult);
-        }
-      } else {
-        profileNote = ' Profile metadata could not be created because the user id was unavailable.';
-      }
-    } catch (e) {
-      profileNote = ` Profile metadata creation failed: ${e.message || e}`;
-      console.error('profile create failed', e);
-    }
-
     setLoading(false);
-    setMessage(
-      `Registration submitted. Please check your email for confirmation and wait for admin approval.${profileNote}`
-    );
+    setMessage('Registration submitted. The account is pending admin approval.');
+    setFullName('');
+    setEmail('');
+    setPassword('');
+    setPhone('');
+    setAddress('');
+    setSubjectPreference('');
     setFullName("");
     setEmail("");
     setPassword("");

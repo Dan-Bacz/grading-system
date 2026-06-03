@@ -110,6 +110,27 @@ export default function AdminPage() {
     }
   }
 
+  async function rejectUser(userId) {
+    setMessage("");
+    setError("");
+
+    try {
+      const response = await fetch('/api/admin/dashboard', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || 'Unable to reject account.');
+      }
+      await refreshData();
+      setMessage('Account rejected and deleted.');
+    } catch (err) {
+      setError(err.message);
+    }
+  }
+
   async function assignSubject(event) {
     event.preventDefault();
     setMessage("");
@@ -224,12 +245,20 @@ export default function AdminPage() {
                         <p className="font-semibold text-slate-900">{user.full_name}</p>
                         <p className="text-sm text-slate-600">{user.email} · {user.role}</p>
                       </div>
-                      <button
-                        onClick={() => approveUser(user.user_id)}
-                        className="rounded-2xl bg-sky-600 px-4 py-2 text-white transition hover:bg-sky-500"
-                      >
-                        Approve
-                      </button>
+                      <div className="flex gap-3">
+                        <button
+                          onClick={() => approveUser(user.user_id)}
+                          className="rounded-2xl bg-sky-600 px-4 py-2 text-white transition hover:bg-sky-500"
+                        >
+                          Approve
+                        </button>
+                        <button
+                          onClick={() => rejectUser(user.user_id)}
+                          className="rounded-2xl bg-red-600 px-4 py-2 text-white transition hover:bg-red-500"
+                        >
+                          Reject
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}

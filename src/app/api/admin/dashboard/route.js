@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const SUPABASE_SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY;
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || process.env.SUPABASE_URL;
+const SUPABASE_SERVICE_ROLE = process.env.SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE) {
   console.error(
@@ -68,6 +68,43 @@ export async function PATCH(request) {
     }
 
     return NextResponse.json({ data });
+  } catch (err) {
+    return NextResponse.json({ error: err.message || String(err) }, { status: 500 });
+  }
+}
+
+export async function DELETE(request) {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE) {
+    return NextResponse.json(
+      { error: 'Supabase admin configuration is missing.' },
+      { status: 500 }
+    );
+  }
+
+  try {
+    const body = await request.json();
+    const { user_id } = body;
+    if (!user_id) {
+      return NextResponse.json({ error: 'Missing user_id' }, { status: 400 });
+    }
+
+    // Delete the user from Supabase auth
+    const { error: deleteAuthError } = await adminClient.auth.admin.deleteUser(user_id);
+    if (deleteAuthError) {
+      return NextResponse.json({ error: deleteAuthError.message }, { status: 500 });
+    }
+
+    // Delete the profile record
+    const { error: deleteProfileError } = await adminClient
+      .from('profiles')
+      .delete()
+      .eq('user_id', user_id);
+
+    if (deleteProfileError) {
+      return NextResponse.json({ error: deleteProfileError.message }, { status: 500 });
+    }
+
+    return NextResponse.json({ data: { message: 'Account rejected and deleted successfully.' } });
   } catch (err) {
     return NextResponse.json({ error: err.message || String(err) }, { status: 500 });
   }
