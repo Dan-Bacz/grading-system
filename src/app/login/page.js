@@ -49,8 +49,8 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 sm:py-8">
-      <div className="mx-auto w-full max-w-xl rounded-3xl bg-white p-6 shadow-xl shadow-slate-200 sm:p-8">
+    <main className="min-h-screen bg-[url('/auth-bg.svg')] bg-cover bg-center px-4 py-6 sm:px-6 sm:py-8">
+      <div className="mx-auto w-full max-w-xl rounded-3xl bg-white/95 p-6 shadow-xl shadow-slate-900/10 backdrop-blur-sm sm:p-8">
         <h1 className="text-3xl font-semibold text-slate-900">Login to FGBI</h1>
         <p className="mt-2 text-slate-600">Use your registered email and password.</p>
 
