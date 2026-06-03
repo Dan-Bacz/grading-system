@@ -71,29 +71,43 @@ export default function AdminPage() {
   }, [router]);
 
   async function refreshData() {
-    const [{ data: pending }, { data: teacherData }, { data: studentData }, { data: gradeData }] = await Promise.all([
-      supabase.from("profiles").select("*").eq("status", "pending").order("created_at", { ascending: false }),
-      supabase.from("profiles").select("*").eq("role", "teacher").order("created_at", { ascending: false }),
-      supabase.from("profiles").select("*").eq("role", "student").order("created_at", { ascending: false }),
-      supabase.from("grades").select("*").order("created_at", { ascending: false }),
-    ]);
+    setMessage("");
+    setError("");
 
-    setPendingUsers(pending || []);
-    setTeachers(teacherData || []);
-    setStudents(studentData || []);
-    setGrades(gradeData || []);
+    try {
+      const response = await fetch('/api/admin/dashboard');
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || 'Unable to load admin data.');
+      }
+      setPendingUsers(result.pending || []);
+      setTeachers(result.teachers || []);
+      setStudents(result.students || []);
+      setGrades(result.grades || []);
+    } catch (err) {
+      setError(err.message);
+    }
   }
 
   async function approveUser(userId) {
     setMessage("");
     setError("");
-    const { error } = await supabase.from("profiles").update({ status: "active" }).eq("user_id", userId);
-    if (error) {
-      setError(error.message);
-      return;
+
+    try {
+      const response = await fetch('/api/admin/dashboard', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, status: 'active' }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || 'Unable to approve account.');
+      }
+      await refreshData();
+      setMessage('Approved successfully.');
+    } catch (err) {
+      setError(err.message);
     }
-    await refreshData();
-    setMessage("Approved successfully.");
   }
 
   async function assignSubject(event) {
@@ -106,20 +120,23 @@ export default function AdminPage() {
       return;
     }
 
-    const { error } = await supabase
-      .from("profiles")
-      .update({ assigned_subject: subjectName, status: "active" })
-      .eq("user_id", selectedTeacher);
-
-    if (error) {
-      setError(error.message);
-      return;
+    try {
+      const response = await fetch('/api/admin/dashboard', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: selectedTeacher, status: 'active', assigned_subject: subjectName }),
+      });
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.error || 'Unable to assign subject.');
+      }
+      setMessage('Subject assigned to teacher.');
+      setSelectedTeacher("");
+      setSubjectName("");
+      await refreshData();
+    } catch (err) {
+      setError(err.message);
     }
-
-    setMessage("Subject assigned to teacher.");
-    setSelectedTeacher("");
-    setSubjectName("");
-    await refreshData();
   }
 
   function handleAddSemester(event) {

@@ -61,14 +61,41 @@ export default function RegisterPage() {
       return;
     }
 
-    // If signUp succeeded, the `auth.users` row will be created.
-    // We rely on a server-side trigger (run from the Supabase SQL editor)
-    // to create the corresponding `profiles` row. Do not attempt to insert
-    // into `profiles` from the client because Row Level Security (RLS)
-    // may block it.
+    // Try to create a profiles row server-side so admins see the pending account immediately.
+    let profileNote = '';
+    try {
+      const userId = data?.user?.id ?? null;
+      if (userId) {
+        const profileResponse = await fetch('/api/profiles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: userId,
+            email,
+            full_name: fullName,
+            role,
+            phone,
+            address,
+            assigned_subject: role === 'teacher' ? subjectPreference : null,
+            status: 'pending',
+          }),
+        });
+        const profileResult = await profileResponse.json();
+        if (!profileResponse.ok) {
+          profileNote = ` Profile metadata creation failed: ${profileResult.error || 'unknown error'}`;
+          console.error('Profile API error', profileResult);
+        }
+      } else {
+        profileNote = ' Profile metadata could not be created because the user id was unavailable.';
+      }
+    } catch (e) {
+      profileNote = ` Profile metadata creation failed: ${e.message || e}`;
+      console.error('profile create failed', e);
+    }
+
     setLoading(false);
     setMessage(
-      "Registration submitted. Please check your email for confirmation and wait for admin approval."
+      `Registration submitted. Please check your email for confirmation and wait for admin approval.${profileNote}`
     );
     setFullName("");
     setEmail("");
