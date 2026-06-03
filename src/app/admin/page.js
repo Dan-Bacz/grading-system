@@ -32,6 +32,7 @@ export default function AdminPage() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -416,16 +417,49 @@ export default function AdminPage() {
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 sm:py-8">
       <div className="mx-auto flex w-full max-w-7xl min-h-[calc(100vh-48px)] flex-col gap-6 lg:flex-row">
-        <Sidebar
-          title="FGBI Admin"
-          menuItems={adminMenu}
-          activeKey={activeTab}
-          onSelect={setActiveTab}
-          profile={profile}
-          onSignOut={handleSignOut}
-        />
+        <div className="flex items-center justify-between gap-4 rounded-3xl bg-white p-4 shadow-xl shadow-slate-200 lg:hidden">
+          <div>
+            <p className="text-xs uppercase tracking-[0.3em] text-sky-600">FGBI Admin</p>
+            <h1 className="mt-2 text-xl font-semibold text-slate-900">{profile.full_name}</h1>
+          </div>
+          <button
+            type="button"
+            onClick={() => setSidebarOpen(true)}
+            className="rounded-2xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+          >
+            Menu
+          </button>
+        </div>
 
-        <div className="flex-1 space-y-6">
+        <div className="relative lg:block">
+          <div
+            className={`fixed inset-0 z-40 bg-slate-950/50 transition-opacity lg:hidden ${
+              sidebarOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+            }`}
+            onClick={() => setSidebarOpen(false)}
+          />
+
+          <div
+            className={`fixed inset-y-0 left-0 z-50 w-[86vw] max-w-xs overflow-y-auto bg-transparent p-4 transition-transform duration-300 lg:static lg:block lg:translate-x-0 lg:w-full lg:max-w-none lg:p-0 ${
+              sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+            }`}
+          >
+            <Sidebar
+              title="FGBI Admin"
+              menuItems={adminMenu}
+              activeKey={activeTab}
+              onSelect={(key) => {
+                setActiveTab(key);
+                setSidebarOpen(false);
+              }}
+              profile={profile}
+              onSignOut={handleSignOut}
+              onClose={() => setSidebarOpen(false)}
+            />
+          </div>
+        </div>
+
+        <div className="flex-1 space-y-6 lg:ml-[0px]">
           <section className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200 sm:p-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
               <div>
