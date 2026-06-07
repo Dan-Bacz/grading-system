@@ -50,7 +50,7 @@ export default function LoginPage() {
 
   return (
     <main className="min-h-screen bg-[url('/bg.png')] bg-cover bg-center px-4 py-6 sm:px-6 sm:py-8">
-      <div className="mx-auto w-full max-w-xl rounded-3xl bg-white/95 p-6 shadow-xl shadow-slate-900/10 backdrop-blur-sm sm:p-8">
+      <div className="mx-auto w-full max-w-xl rounded-3xl bg-white/70 border border-white/60 p-6 shadow-xl shadow-slate-900/10 backdrop-blur-xl sm:p-8">
         <div className="mx-auto mb-8 flex max-w-[220px] flex-col items-center text-center">
           <img src="/fgbi.png" alt="FGBI logo" className="h-16 w-16" />
           <h1 className="mt-5 text-3xl font-semibold text-slate-900">Login to FGBI</h1>
