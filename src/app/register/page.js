@@ -148,7 +148,7 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[url('/auth-bg.svg')] bg-cover bg-center px-4 py-6 sm:px-6 sm:py-8">
+    <main className="min-h-screen bg-[url('/bg.png')] bg-cover bg-center px-4 py-6 sm:px-6 sm:py-8">
       <div className="mx-auto w-full max-w-2xl rounded-3xl bg-white/95 p-6 shadow-xl shadow-slate-900/10 backdrop-blur-sm sm:p-8">
         <div className="mx-auto mb-8 flex max-w-[220px] flex-col items-center text-center">
           <img src="/fgbi.png" alt="FGBI logo" className="h-16 w-16" />
