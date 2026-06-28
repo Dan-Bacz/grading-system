@@ -54,6 +54,7 @@ export default function LoginPage() {
         <div className="mx-auto mb-8 flex max-w-[220px] flex-col items-center text-center">
           <img src="/fgbi.png" alt="FGBI logo" className="h-16 w-16" />
           <h1 className="mt-5 text-3xl font-semibold text-slate-900">Login to FGBI</h1>
+          <h2 className="mt-1 text-sm text-slate-600">Ella jem</h2>
           <p className="mt-2 text-slate-600">Use your registered email and password.</p>
         </div>
 
