@@ -136,10 +136,10 @@ function SimplePieChart({ data, title }) {
   );
 }
 
-function SimpleSpiderChart({ data, title }) {
-  const size = 320;
+function SimpleSpiderChart({ data, title, compact = false }) {
+  const size = compact ? 220 : 320;
   const center = size / 2;
-  const radius = 110;
+  const radius = compact ? 78 : 110;
   const levels = 5;
   const maxValue = Math.max(...data.map((item) => item.value), 1);
   const angleStep = 360 / data.length;
@@ -156,19 +156,19 @@ function SimpleSpiderChart({ data, title }) {
   const polygonString = polygonPoints.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ");
 
   return (
-    <div className="mt-6 rounded-[22px] border border-slate-800/80 bg-[#0b1016] p-4">
-      <div className="mb-4 flex items-center justify-between">
+    <div className={`mt-4 rounded-[18px] border border-slate-800/80 bg-[#0b1016] ${compact ? "p-3" : "p-4"}`}>
+      <div className={`mb-3 flex items-center justify-between ${compact ? "text-[11px]" : "text-sm"}`}>
         <div>
-          <p className="text-sm font-medium text-slate-400">{title}</p>
-          <p className="mt-1 text-xs uppercase tracking-[0.3em] text-slate-500">Performance radar</p>
+          <p className="font-medium text-slate-400">{title}</p>
+          <p className="mt-1 text-[10px] uppercase tracking-[0.28em] text-slate-500">Performance radar</p>
         </div>
-        <div className="rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-sky-300">
+        <div className="rounded-full border border-sky-500/30 bg-sky-500/10 px-2.5 py-1 text-[9px] font-semibold uppercase tracking-[0.2em] text-sky-300">
           Live
         </div>
       </div>
 
-      <div className="rounded-[18px] border border-slate-800/80 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.16),_transparent_60%),linear-gradient(145deg,_rgba(15,23,42,0.96),_rgba(2,6,23,0.95))] p-3">
-        <svg viewBox={`0 0 ${size} ${size}`} className="h-72 w-full">
+      <div className="rounded-[14px] border border-slate-800/80 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.16),_transparent_60%),linear-gradient(145deg,_rgba(15,23,42,0.96),_rgba(2,6,23,0.95))] p-2">
+        <svg viewBox={`0 0 ${size} ${size}`} className={compact ? "h-44 w-full" : "h-72 w-full"}>
           <defs>
             <linearGradient id="spider-fill" x1="0%" y1="0%" x2="100%" y2="100%">
               <stop offset="0%" stopColor="rgba(56,189,248,0.4)" />
@@ -217,9 +217,9 @@ function SimpleSpiderChart({ data, title }) {
                 />
                 <text
                   x={point.x}
-                  y={point.y + (point.y > center ? 16 : -8)}
+                  y={point.y + (point.y > center ? 14 : -6)}
                   textAnchor="middle"
-                  fontSize="10"
+                  fontSize={compact ? "8" : "10"}
                   fill="#cbd5e1"
                 >
                   {item.label}
@@ -234,8 +234,8 @@ function SimpleSpiderChart({ data, title }) {
             const item = data[index];
             return (
               <g key={`${item.label}-marker`}>
-                <circle cx={point.x} cy={point.y} r="5.2" fill="#f8fafc" stroke={item.color || "#38bdf8"} strokeWidth="2" />
-                <circle cx={point.x} cy={point.y} r="9.2" fill="none" stroke={item.color || "#38bdf8"} strokeOpacity="0.28" strokeWidth="1.5" />
+                <circle cx={point.x} cy={point.y} r={compact ? "4.2" : "5.2"} fill="#f8fafc" stroke={item.color || "#38bdf8"} strokeWidth="2" />
+                <circle cx={point.x} cy={point.y} r={compact ? "7.2" : "9.2"} fill="none" stroke={item.color || "#38bdf8"} strokeOpacity="0.28" strokeWidth="1.5" />
               </g>
             );
           })}
@@ -484,6 +484,9 @@ export default function AdminPage() {
               <div className="rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur">
                 <h3 className="text-xl font-semibold text-white">Role distribution</h3>
                 <SimplePieChart data={roleBreakdown} title="role distribution" />
+                <div className="mt-2">
+                  <SimpleSpiderChart data={roleBreakdown} title="Role balance" compact />
+                </div>
               </div>
             </div>
 
@@ -503,10 +506,6 @@ export default function AdminPage() {
               </div>
             </div>
 
-            <div className="rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur">
-              <h3 className="text-xl font-semibold text-white">Operational spider map</h3>
-              <SimpleSpiderChart data={performanceOverview} title="System performance" />
-            </div>
           </div>
         );
       case "approve":
