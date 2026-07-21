@@ -17,6 +17,84 @@ const adminMenu = [
   { key: "settings", label: "Settings" },
 ];
 
+function SimpleBarChart({ data }) {
+  const maxValue = Math.max(...data.map((item) => item.value), 1);
+
+  return (
+    <div className="mt-6 space-y-4">
+      {data.map((item) => (
+        <div key={item.label}>
+          <div className="flex items-center justify-between text-sm text-slate-600">
+            <span>{item.label}</span>
+            <span className="font-semibold text-slate-900">{item.value}</span>
+          </div>
+          <div className="mt-2 h-3 overflow-hidden rounded-full bg-slate-100">
+            <div
+              className="h-3 rounded-full"
+              style={{ width: `${(item.value / maxValue) * 100}%`, backgroundColor: item.color }}
+            />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function SimplePieChart({ data, title }) {
+  const total = data.reduce((sum, item) => sum + item.value, 0);
+  const radius = 48;
+  const circumference = 2 * Math.PI * radius;
+  let offset = 0;
+
+  if (total === 0) {
+    return (
+      <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-600">
+        No {title.toLowerCase()} data yet.
+      </div>
+    );
+  }
+
+  return (
+    <div className="mt-6 flex flex-col gap-6 md:flex-row md:items-center">
+      <svg viewBox="0 0 140 140" className="mx-auto h-40 w-40 shrink-0">
+        {data.map((item) => {
+          const segmentLength = total === 0 ? 0 : (item.value / total) * circumference;
+          const strokeDasharray = `${segmentLength} ${circumference - segmentLength}`;
+          const dashOffset = -offset;
+          offset += segmentLength;
+
+          return (
+            <circle
+              key={item.label}
+              cx="70"
+              cy="70"
+              r={radius}
+              fill="none"
+              stroke={item.color}
+              strokeWidth="24"
+              strokeLinecap="round"
+              strokeDasharray={strokeDasharray}
+              strokeDashoffset={dashOffset}
+              transform="rotate(-90 70 70)"
+            />
+          );
+        })}
+      </svg>
+      <div className="flex-1 space-y-3">
+        {data.map((item) => (
+          <div key={item.label} className="flex items-center justify-between text-sm text-slate-600">
+            <div className="flex items-center gap-2">
+              <span className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
+              <span>{item.label}</span>
+            </div>
+            <span className="font-semibold text-slate-900">{item.value}</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [profile, setProfile] = useState(null);
@@ -206,6 +284,19 @@ export default function AdminPage() {
     );
   }
 
+  const roleBreakdown = [
+    { label: "Pending approvals", value: pendingUsers.length, color: "#38bdf8" },
+    { label: "Teachers", value: teachers.length, color: "#818cf8" },
+    { label: "Students", value: students.length, color: "#34d399" },
+  ];
+
+  const gradeBreakdown = [
+    { label: "A (90+)", value: grades.filter((grade) => Number(grade.score) >= 90).length, color: "#22c55e" },
+    { label: "B (80-89)", value: grades.filter((grade) => Number(grade.score) >= 80 && Number(grade.score) < 90).length, color: "#38bdf8" },
+    { label: "C (70-79)", value: grades.filter((grade) => Number(grade.score) >= 70 && Number(grade.score) < 80).length, color: "#f59e0b" },
+    { label: "D/F", value: grades.filter((grade) => Number(grade.score) < 70).length, color: "#f43f5e" },
+  ];
+
   const renderActivePane = () => {
     switch (activeTab) {
       case "dashboard":
@@ -225,9 +316,32 @@ export default function AdminPage() {
                 <p className="mt-4 text-3xl font-semibold text-slate-900">{students.length}</p>
               </div>
             </div>
-            <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-              <h3 className="text-xl font-semibold text-slate-900">Quick summary</h3>
-              <p className="mt-3 text-slate-600">Use the sidebar to manage approvals, faculty, subjects, and student enrollment for each semester.</p>
+
+            <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+                <h3 className="text-xl font-semibold text-slate-900">Account activity</h3>
+                <SimpleBarChart data={roleBreakdown} />
+              </div>
+              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+                <h3 className="text-xl font-semibold text-slate-900">Role distribution</h3>
+                <SimplePieChart data={roleBreakdown} title="role distribution" />
+              </div>
+            </div>
+
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+                <h3 className="text-xl font-semibold text-slate-900">Grade performance</h3>
+                <SimplePieChart data={gradeBreakdown} title="grade performance" />
+              </div>
+              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+                <h3 className="text-xl font-semibold text-slate-900">Quick summary</h3>
+                <p className="mt-3 text-slate-600">Use the sidebar to manage approvals, faculty, subjects, and student enrollment for each semester.</p>
+                <div className="mt-6 space-y-3 text-sm text-slate-600">
+                  <div className="rounded-2xl bg-slate-50 p-3">{pendingUsers.length} accounts need review.</div>
+                  <div className="rounded-2xl bg-slate-50 p-3">{grades.length} grade entries are currently available.</div>
+                  <div className="rounded-2xl bg-slate-50 p-3">{subjects.length} subjects and {semesters.length} semesters are configured.</div>
+                </div>
+              </div>
             </div>
           </div>
         );
