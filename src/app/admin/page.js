@@ -42,7 +42,7 @@ function SimpleBarChart({ data }) {
         const height = Math.max(44, (item.value / maxValue) * 100);
 
         return (
-          <div key={item.label}>
+          <div key={item.label} className="group transition duration-300 hover:-translate-y-1">
             <div className="flex items-center justify-between text-sm text-slate-400">
               <span>{item.label}</span>
               <span className="font-semibold text-white">{item.value}</span>
@@ -50,7 +50,7 @@ function SimpleBarChart({ data }) {
             <div className="mt-2 flex h-24 items-end rounded-2xl border border-slate-700/70 bg-slate-900/70 p-2">
               <div className="relative h-full w-full">
                 <div
-                  className="absolute bottom-0 left-0 right-0 rounded-t-[14px] border border-slate-600/70"
+                  className="absolute bottom-0 left-0 right-0 rounded-t-[14px] border border-slate-600/70 transition duration-300 group-hover:scale-[1.01]"
                   style={{
                     height: `${height}%`,
                     background: `linear-gradient(145deg, ${item.color}, #111827)`,
@@ -94,12 +94,16 @@ function SimplePieChart({ data, title }) {
 
   return (
     <div className="mt-6 flex flex-col gap-6 md:flex-row md:items-center">
-      <div className="mx-auto flex h-40 w-40 items-center justify-center rounded-full bg-[#0b1016] p-2 shadow-[0_20px_35px_rgba(0,0,0,0.35)]">
+      <div className="mx-auto flex h-40 w-40 items-center justify-center rounded-full bg-[#0b1016] p-2 shadow-[0_20px_35px_rgba(0,0,0,0.35)] transition duration-300 hover:scale-105">
         <svg viewBox="0 0 140 140" className="h-40 w-40">
           <defs>
             <filter id="pie-shadow" x="-20%" y="-20%" width="140%" height="140%">
               <feDropShadow dx="0" dy="8" stdDeviation="4" floodColor="rgba(0,0,0,0.45)" />
             </filter>
+            <linearGradient id="pie-3d" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgba(255,255,255,0.24)" />
+              <stop offset="100%" stopColor="rgba(2,6,23,0.25)" />
+            </linearGradient>
           </defs>
           <ellipse cx="70" cy="104" rx="34" ry="10" fill="rgba(0,0,0,0.35)" />
           {data.map((item) => {
@@ -107,14 +111,28 @@ function SimplePieChart({ data, title }) {
             const startAngle = currentAngle;
             const endAngle = currentAngle + segmentAngle;
             currentAngle = endAngle;
+            const midAngle = (startAngle + endAngle) / 2;
+            const offset = 6;
+            const shadowX = Math.cos((midAngle - 90) * (Math.PI / 180)) * offset;
+            const shadowY = Math.sin((midAngle - 90) * (Math.PI / 180)) * offset;
 
             return (
-              <path
-                key={item.label}
-                d={describePieSlice(70, 70, 48, startAngle, endAngle)}
-                fill={item.color}
-                filter="url(#pie-shadow)"
-              />
+              <g key={item.label}>
+                <path
+                  d={describePieSlice(70 + shadowX, 70 + shadowY, radius - 1, startAngle, endAngle)}
+                  fill="rgba(0,0,0,0.28)"
+                />
+                <path
+                  d={describePieSlice(70, 70, radius, startAngle, endAngle)}
+                  fill={item.color}
+                  filter="url(#pie-shadow)"
+                />
+                <path
+                  d={describePieSlice(70, 70, radius, startAngle, endAngle)}
+                  fill="url(#pie-3d)"
+                  opacity="0.35"
+                />
+              </g>
             );
           })}
           <circle cx="70" cy="70" r="30" fill="#0b1016" stroke="rgba(148,163,184,0.25)" strokeWidth="1.5" />
@@ -123,7 +141,7 @@ function SimplePieChart({ data, title }) {
       </div>
       <div className="flex-1 space-y-3">
         {data.map((item) => (
-          <div key={item.label} className="flex items-center justify-between text-sm text-slate-400">
+          <div key={item.label} className="flex items-center justify-between rounded-2xl border border-slate-800/70 bg-[#0b1016]/70 px-3 py-2 text-sm text-slate-400 transition duration-300 hover:-translate-y-0.5 hover:border-slate-600">
             <div className="flex items-center gap-2">
               <span className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
               <span>{item.label}</span>
@@ -156,7 +174,7 @@ function SimpleSpiderChart({ data, title, compact = false }) {
   const polygonString = polygonPoints.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ");
 
   return (
-    <div className={`mt-4 rounded-[18px] border border-slate-800/80 bg-[#0b1016] ${compact ? "p-3" : "p-4"}`}>
+    <div className={`mt-4 rounded-[18px] border border-slate-800/80 bg-[#0b1016] transition duration-300 hover:-translate-y-1 hover:border-slate-700 ${compact ? "p-3" : "p-4"}`}>
       <div className={`mb-3 flex items-center justify-between ${compact ? "text-[11px]" : "text-sm"}`}>
         <div>
           <p className="font-medium text-slate-400">{title}</p>
