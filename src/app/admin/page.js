@@ -136,6 +136,115 @@ function SimplePieChart({ data, title }) {
   );
 }
 
+function SimpleSpiderChart({ data, title }) {
+  const size = 320;
+  const center = size / 2;
+  const radius = 110;
+  const levels = 5;
+  const maxValue = Math.max(...data.map((item) => item.value), 1);
+  const angleStep = 360 / data.length;
+
+  const buildPoint = (value, index, scale = 1) => {
+    const angle = index * angleStep - 90;
+    const normalized = Math.max(0.16, Math.min(1, value / maxValue));
+    const distance = radius * scale * normalized;
+    const point = polarToCartesian(center, center, distance, angle);
+    return { x: point.x, y: point.y };
+  };
+
+  const polygonPoints = data.map((item, index) => buildPoint(item.value, index));
+  const polygonString = polygonPoints.map((point) => `${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ");
+
+  return (
+    <div className="mt-6 rounded-[22px] border border-slate-800/80 bg-[#0b1016] p-4">
+      <div className="mb-4 flex items-center justify-between">
+        <div>
+          <p className="text-sm font-medium text-slate-400">{title}</p>
+          <p className="mt-1 text-xs uppercase tracking-[0.3em] text-slate-500">Performance radar</p>
+        </div>
+        <div className="rounded-full border border-sky-500/30 bg-sky-500/10 px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.24em] text-sky-300">
+          Live
+        </div>
+      </div>
+
+      <div className="rounded-[18px] border border-slate-800/80 bg-[radial-gradient(circle_at_top,_rgba(56,189,248,0.16),_transparent_60%),linear-gradient(145deg,_rgba(15,23,42,0.96),_rgba(2,6,23,0.95))] p-3">
+        <svg viewBox={`0 0 ${size} ${size}`} className="h-72 w-full">
+          <defs>
+            <linearGradient id="spider-fill" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="rgba(56,189,248,0.4)" />
+              <stop offset="100%" stopColor="rgba(129,140,248,0.24)" />
+            </linearGradient>
+            <linearGradient id="spider-stroke" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#38bdf8" />
+              <stop offset="100%" stopColor="#818cf8" />
+            </linearGradient>
+            <filter id="spider-shadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="8" stdDeviation="4" floodColor="rgba(0,0,0,0.55)" />
+            </filter>
+          </defs>
+
+          <ellipse cx={center} cy={center + 112} rx="78" ry="20" fill="rgba(0,0,0,0.34)" />
+
+          {Array.from({ length: levels }).map((_, levelIndex) => {
+            const scale = (levelIndex + 1) / levels;
+            const ringPoints = data.map((item, index) => {
+              const point = buildPoint(item.value, index, scale);
+              return `${point.x.toFixed(1)},${point.y.toFixed(1)}`;
+            });
+
+            return (
+              <polygon
+                key={levelIndex}
+                points={ringPoints.join(" ")}
+                fill="none"
+                stroke="rgba(148,163,184,0.18)"
+                strokeWidth="1"
+              />
+            );
+          })}
+
+          {data.map((item, index) => {
+            const point = buildPoint(maxValue, index, 1);
+            return (
+              <g key={item.label}>
+                <line
+                  x1={center}
+                  y1={center}
+                  x2={point.x}
+                  y2={point.y}
+                  stroke="rgba(148,163,184,0.22)"
+                  strokeWidth="1"
+                />
+                <text
+                  x={point.x}
+                  y={point.y + (point.y > center ? 16 : -8)}
+                  textAnchor="middle"
+                  fontSize="10"
+                  fill="#cbd5e1"
+                >
+                  {item.label}
+                </text>
+              </g>
+            );
+          })}
+
+          <polygon points={polygonString} fill="url(#spider-fill)" stroke="url(#spider-stroke)" strokeWidth="2.2" filter="url(#spider-shadow)" />
+
+          {polygonPoints.map((point, index) => {
+            const item = data[index];
+            return (
+              <g key={`${item.label}-marker`}>
+                <circle cx={point.x} cy={point.y} r="5.2" fill="#f8fafc" stroke={item.color || "#38bdf8"} strokeWidth="2" />
+                <circle cx={point.x} cy={point.y} r="9.2" fill="none" stroke={item.color || "#38bdf8"} strokeOpacity="0.28" strokeWidth="1.5" />
+              </g>
+            );
+          })}
+        </svg>
+      </div>
+    </div>
+  );
+}
+
 export default function AdminPage() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [profile, setProfile] = useState(null);
@@ -338,6 +447,15 @@ export default function AdminPage() {
     { label: "D/F", value: grades.filter((grade) => Number(grade.score) < 70).length, color: "#f43f5e" },
   ];
 
+  const performanceOverview = [
+    { label: "Pending", value: pendingUsers.length, color: "#38bdf8" },
+    { label: "Teachers", value: teachers.length, color: "#818cf8" },
+    { label: "Students", value: students.length, color: "#34d399" },
+    { label: "A Grade", value: gradeBreakdown[0].value, color: "#22c55e" },
+    { label: "B Grade", value: gradeBreakdown[1].value, color: "#38bdf8" },
+    { label: "C+", value: gradeBreakdown[2].value, color: "#f59e0b" },
+  ];
+
   const renderActivePane = () => {
     switch (activeTab) {
       case "dashboard":
@@ -383,6 +501,11 @@ export default function AdminPage() {
                   <div className="rounded-2xl border border-slate-800 bg-[#0b1016] p-3">{subjects.length} subjects and {semesters.length} semesters are configured.</div>
                 </div>
               </div>
+            </div>
+
+            <div className="rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur">
+              <h3 className="text-xl font-semibold text-white">Operational spider map</h3>
+              <SimpleSpiderChart data={performanceOverview} title="System performance" />
             </div>
           </div>
         );
