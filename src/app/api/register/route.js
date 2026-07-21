@@ -22,10 +22,15 @@ export async function POST(request) {
       }
     }
 
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(String(body.email).trim().toLowerCase())) {
+      return NextResponse.json({ error: 'Please enter a valid email address.' }, { status: 400 });
+    }
+
     const { data: createData, error: createError } = await adminClient.auth.admin.createUser({
-      email: body.email,
+      email: String(body.email).trim().toLowerCase(),
       password: body.password,
-      email_confirm: true,
+      email_confirm: false,
       user_metadata: {
         full_name: body.full_name,
         role: body.role,

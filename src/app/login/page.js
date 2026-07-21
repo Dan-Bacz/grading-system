@@ -41,7 +41,12 @@ export default function LoginPage() {
     setLoading(false);
 
     if (error) {
-      setError(error.message);
+      const message = error.message?.toLowerCase() || "";
+      if (message.includes("email") && message.includes("confirm")) {
+        setError("Please verify your email address first. Check the confirmation email sent to you.");
+      } else {
+        setError(error.message);
+      }
       return;
     }
 

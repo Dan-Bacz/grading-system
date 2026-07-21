@@ -38,113 +38,78 @@ export default function RegisterPage() {
     setMessage("");
     setLoading(true);
 
-    const requestBody = {
-      email,
-      password,
-      full_name: fullName,
-      role,
-      phone,
-      address,
-      assigned_subject: role === 'teacher' ? subjectPreference : null,
-    };
+    const normalizedEmail = email.trim().toLowerCase();
+    const normalizedFullName = fullName.trim();
+    const normalizedPhone = phone.trim();
+    const normalizedAddress = address.trim();
+    const normalizedSubject = role === "teacher" ? subjectPreference.trim() : null;
 
-    const response = await fetch('/api/register', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(requestBody),
-    });
-
-    const result = await response.json();
-
-    if (!response.ok) {
-      const serviceRoleMissing = result.error?.toLowerCase().includes('service role');
-      if (serviceRoleMissing) {
-        const profileData = {
-          full_name: fullName,
-          role,
-          phone,
-          address,
-          status: 'pending',
-          assigned_subject: role === 'teacher' ? subjectPreference : null,
-        };
-
-        const { data, error: authError } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: profileData,
-          },
-        });
-
-        if (authError) {
-          setError(authError.message);
-          setLoading(false);
-          return;
-        }
-
-        let profileNote = '';
-        try {
-          const userId = data?.user?.id ?? null;
-          if (userId) {
-            const profileResponse = await fetch('/api/profiles', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json' },
-              body: JSON.stringify({
-                user_id: userId,
-                email,
-                full_name: fullName,
-                role,
-                phone,
-                address,
-                assigned_subject: role === 'teacher' ? subjectPreference : null,
-                status: 'pending',
-              }),
-            });
-            const profileResult = await profileResponse.json();
-            if (!profileResponse.ok) {
-              profileNote = ` Profile metadata creation failed: ${profileResult.error || 'unknown error'}`;
-              console.error('Profile API error', profileResult);
-            }
-          } else {
-            profileNote = ' Profile metadata could not be created because the user id was unavailable.';
-          }
-        } catch (e) {
-          profileNote = ` Profile metadata creation failed: ${e.message || e}`;
-          console.error('profile create failed', e);
-        }
-
-        setLoading(false);
-        setMessage(
-          `Registration submitted. Please check your email for confirmation and wait for admin approval.${profileNote}`
-        );
-        setFullName('');
-        setEmail('');
-        setPassword('');
-        setPhone('');
-        setAddress('');
-        setSubjectPreference('');
-        return;
-      }
-
-      setError(result.error || 'Registration failed.');
+    const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailPattern.test(normalizedEmail)) {
+      setError("Please enter a valid email address.");
       setLoading(false);
       return;
     }
 
+    if (password.length < 6) {
+      setError("Password must be at least 6 characters long.");
+      setLoading(false);
+      return;
+    }
+
+    const redirectUrl = typeof window !== "undefined" ? `${window.location.origin}/login` : undefined;
+    const { data, error: authError } = await supabase.auth.signUp({
+      email: normalizedEmail,
+      password,
+      options: {
+        emailRedirectTo: redirectUrl,
+        data: {
+          full_name: normalizedFullName,
+          role,
+          phone: normalizedPhone || null,
+          address: normalizedAddress || null,
+          assigned_subject: normalizedSubject || null,
+          status: "pending",
+        },
+      },
+    });
+
+    if (authError) {
+      setError(authError.message);
+      setLoading(false);
+      return;
+    }
+
+    const userId = data?.user?.id;
+    if (userId) {
+      try {
+        await fetch('/api/profiles', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: userId,
+            email: normalizedEmail,
+            full_name: normalizedFullName,
+            role,
+            phone: normalizedPhone || null,
+            address: normalizedAddress || null,
+            assigned_subject: normalizedSubject || null,
+            status: 'pending',
+          }),
+        });
+      } catch (profileError) {
+        console.error('Profile creation failed', profileError);
+      }
+    }
+
     setLoading(false);
-    setMessage('Registration submitted. The account is pending admin approval.');
+    setMessage('Registration submitted. Please check your email and confirm your address before signing in.');
     setFullName('');
     setEmail('');
     setPassword('');
     setPhone('');
     setAddress('');
     setSubjectPreference('');
-    setFullName("");
-    setEmail("");
-    setPassword("");
-    setPhone("");
-    setAddress("");
-    setSubjectPreference("");
   }
 
   return (
