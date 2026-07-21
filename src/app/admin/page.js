@@ -183,7 +183,7 @@ export default function AdminPage() {
         throw new Error(result.error || 'Unable to approve account.');
       }
       await refreshData();
-      setMessage('Approved successfully.');
+      setMessage(result.message || 'Approved successfully.');
     } catch (err) {
       setError(err.message);
     }

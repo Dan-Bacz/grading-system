@@ -67,7 +67,42 @@ export async function PATCH(request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json({ data });
+    let emailSent = false;
+    let emailError = null;
+
+    if (status === 'active') {
+      const { data: profileData, error: profileFetchError } = await adminClient
+        .from('profiles')
+        .select('email')
+        .eq('user_id', user_id)
+        .single();
+
+      if (!profileFetchError && profileData?.email) {
+        const origin = new URL(request.url).origin;
+        try {
+          const { error: inviteError } = await adminClient.auth.admin.inviteUserByEmail(profileData.email, {
+            redirectTo: `${origin}/login`,
+          });
+
+          if (inviteError) {
+            emailError = inviteError.message;
+          } else {
+            emailSent = true;
+          }
+        } catch (inviteException) {
+          emailError = inviteException.message || String(inviteException);
+        }
+      }
+    }
+
+    return NextResponse.json({
+      data,
+      message: status === 'active'
+        ? (emailSent ? 'Account approved and notification email sent.' : 'Account approved.')
+        : 'Profile updated successfully.',
+      emailSent,
+      emailError,
+    });
   } catch (err) {
     return NextResponse.json({ error: err.message || String(err) }, { status: 500 });
   }
