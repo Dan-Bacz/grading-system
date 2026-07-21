@@ -34,7 +34,7 @@ export default function SiteShell({ children }) {
               </div>
               <div className="text-right">
                 <p className="text-[10px] uppercase tracking-[0.3em] text-sky-400">Powered by</p>
-                <p className="text-sm font-semibold text-slate-100">Funda</p>
+                <p className="text-sm font-semibold text-slate-100">FGGCCPI</p>
               </div>
             </div>
           </div>
