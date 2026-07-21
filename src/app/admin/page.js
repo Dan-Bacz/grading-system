@@ -21,7 +21,7 @@ function SimpleBarChart({ data }) {
   const maxValue = Math.max(...data.map((item) => item.value), 1);
 
   return (
-    <div className="mt-6 space-y-4 rounded-2xl bg-black p-3">
+    <div className="mt-6 space-y-4 rounded-2xl bg-[#0b1016] p-3">
       {data.map((item) => (
         <div key={item.label}>
           <div className="flex items-center justify-between text-sm text-slate-400">
@@ -48,7 +48,7 @@ function SimplePieChart({ data, title }) {
 
   if (total === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-slate-700 bg-black p-6 text-center text-sm text-slate-400">
+      <div className="rounded-3xl border border-dashed border-slate-700 bg-[#0b1016] p-6 text-center text-sm text-slate-400">
         No {title.toLowerCase()} data yet.
       </div>
     );
@@ -56,7 +56,7 @@ function SimplePieChart({ data, title }) {
 
   return (
     <div className="mt-6 flex flex-col gap-6 md:flex-row md:items-center">
-      <svg viewBox="0 0 140 140" className="mx-auto h-40 w-40 shrink-0 rounded-full bg-black p-2">
+      <svg viewBox="0 0 140 140" className="mx-auto h-40 w-40 shrink-0 rounded-full bg-[#0b1016] p-2">
         {data.map((item) => {
           const segmentLength = total === 0 ? 0 : (item.value / total) * circumference;
           const strokeDasharray = `${segmentLength} ${circumference - segmentLength}`;
@@ -276,8 +276,8 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-black p-6">
-        <div className="mx-auto max-w-xl rounded-[32px] border border-slate-800 bg-black p-10 text-center shadow-2xl shadow-black/30 backdrop-blur">
+      <main className="min-h-screen bg-[#0b1016] p-6">
+        <div className="mx-auto max-w-xl rounded-[32px] border border-slate-800 bg-[#0b1016] p-10 text-center shadow-2xl shadow-[#04070c]/40 backdrop-blur">
           <p className="text-slate-300">Loading admin dashboard…</p>
         </div>
       </main>
@@ -337,9 +337,9 @@ export default function AdminPage() {
                 <h3 className="text-xl font-semibold text-white">Quick summary</h3>
                 <p className="mt-3 text-slate-400">Use the sidebar to manage approvals, faculty, subjects, and student enrollment for each semester.</p>
                 <div className="mt-6 space-y-3 text-sm text-slate-400">
-                  <div className="rounded-2xl border border-slate-800 bg-black p-3">{pendingUsers.length} accounts need review.</div>
-                  <div className="rounded-2xl border border-slate-800 bg-black p-3">{grades.length} grade entries are currently available.</div>
-                  <div className="rounded-2xl border border-slate-800 bg-black p-3">{subjects.length} subjects and {semesters.length} semesters are configured.</div>
+                  <div className="rounded-2xl border border-slate-800 bg-[#0b1016] p-3">{pendingUsers.length} accounts need review.</div>
+                  <div className="rounded-2xl border border-slate-800 bg-[#0b1016] p-3">{grades.length} grade entries are currently available.</div>
+                  <div className="rounded-2xl border border-slate-800 bg-[#0b1016] p-3">{subjects.length} subjects and {semesters.length} semesters are configured.</div>
                 </div>
               </div>
             </div>
@@ -354,7 +354,7 @@ export default function AdminPage() {
             ) : (
               <div className="space-y-4">
                 {pendingUsers.map((user) => (
-                  <div key={user.user_id} className="rounded-3xl border border-slate-800 bg-black p-4">
+                  <div key={user.user_id} className="rounded-3xl border border-slate-800 bg-[#0b1016] p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div>
                         <p className="font-semibold text-white">{user.full_name}</p>
@@ -529,9 +529,9 @@ export default function AdminPage() {
   };
 
   return (
-    <main className="min-h-screen bg-black px-4 py-6 sm:px-6 sm:py-8">
+    <main className="min-h-screen bg-[#0b1016] px-4 py-6 sm:px-6 sm:py-8">
       <div className="mx-auto flex w-full max-w-7xl min-h-[calc(100vh-48px)] flex-col gap-6 lg:flex-row">
-        <div className="flex items-center justify-between gap-4 rounded-[24px] border border-slate-800 bg-black p-4 shadow-2xl shadow-black/30 backdrop-blur lg:hidden">
+        <div className="flex items-center justify-between gap-4 rounded-[24px] border border-slate-800 bg-[#0b1016] p-4 shadow-2xl shadow-[#04070c]/40 backdrop-blur lg:hidden">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-sky-400">FGBI Admin</p>
             <h1 className="mt-2 text-xl font-semibold text-white">{profile.full_name}</h1>
@@ -539,7 +539,7 @@ export default function AdminPage() {
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
-            className="rounded-2xl border border-slate-700 bg-black px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-slate-900"
+            className="rounded-2xl border border-slate-700 bg-[#0b1016] px-4 py-2 text-sm font-semibold text-slate-200 transition hover:bg-slate-900"
           >
             Menu
           </button>
@@ -574,7 +574,7 @@ export default function AdminPage() {
         </div>
 
         <div className="flex-1 space-y-6 lg:ml-[0px]">
-          <section className="rounded-[28px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur sm:p-8">
+          <section className="rounded-[28px] border border-slate-800 bg-[#0b1016] p-6 shadow-2xl shadow-[#04070c]/40 backdrop-blur sm:p-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
               <div>
                 <p className="text-sm uppercase tracking-[0.2em] text-sky-400">Admin panel</p>
@@ -587,7 +587,7 @@ export default function AdminPage() {
           {message ? <div className="rounded-3xl border border-emerald-800/60 bg-emerald-500/10 p-4 text-emerald-300 shadow-sm">{message}</div> : null}
           {error ? <div className="rounded-3xl border border-rose-800/60 bg-rose-500/10 p-4 text-rose-300 shadow-sm">{error}</div> : null}
 
-          <section className="rounded-[28px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur sm:p-8">{renderActivePane()}</section>
+          <section className="rounded-[28px] border border-slate-800 bg-[#0b1016] p-6 shadow-2xl shadow-[#04070c]/40 backdrop-blur sm:p-8">{renderActivePane()}</section>
         </div>
       </div>
     </main>

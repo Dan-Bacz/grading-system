@@ -79,7 +79,7 @@ export default function DashboardPage() {
 
   return (
     <main className="min-h-screen bg-black p-6">
-      <div className="mx-auto max-w-3xl rounded-[32px] border border-slate-800 bg-black p-8 shadow-2xl shadow-black/30 backdrop-blur">
+      <div className="mx-auto max-w-3xl rounded-[32px] border border-slate-800 bg-[#0b1016] p-8 shadow-2xl shadow-[#04070c]/40 backdrop-blur">
         <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
           <div>
             <p className="text-sm uppercase tracking-[0.2em] text-sky-400">Welcome back</p>
@@ -89,13 +89,13 @@ export default function DashboardPage() {
 
           <button
             onClick={handleSignOut}
-            className="rounded-2xl border border-slate-700 bg-black px-5 py-3 text-slate-200 transition hover:bg-slate-900"
+            className="rounded-2xl border border-slate-700 bg-[#0b1016] px-5 py-3 text-slate-200 transition hover:bg-slate-900"
           >
             Sign Out
           </button>
         </div>
 
-        <div className="mt-8 rounded-3xl border border-slate-800 bg-black p-6">
+        <div className="mt-8 rounded-3xl border border-slate-800 bg-[#0b1016] p-6">
           <p className="text-slate-300">
             Account status: <span className="font-semibold text-white">{profile.status}</span>
           </p>

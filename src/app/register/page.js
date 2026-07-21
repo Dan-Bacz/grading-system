@@ -113,8 +113,8 @@ export default function RegisterPage() {
   }
 
   return (
-    <main className="min-h-screen bg-black px-4 py-6 sm:px-6 sm:py-8">
-      <div className="mx-auto w-full max-w-2xl rounded-[32px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-8">
+    <main className="min-h-screen bg-[#0b1016] px-4 py-6 sm:px-6 sm:py-8">
+      <div className="mx-auto w-full max-w-2xl rounded-[32px] border border-slate-800 bg-[#0b1016] p-6 shadow-2xl shadow-[#04070c]/40 backdrop-blur-xl sm:p-8">
         <div className="mx-auto mb-8 flex max-w-[220px] flex-col items-center text-center">
           <img src="/fgbi.png" alt="FGBI logo" className="h-16 w-16" />
           <h1 className="mt-5 text-3xl font-semibold text-white">Register for FGBI</h1>
@@ -180,19 +180,19 @@ export default function RegisterPage() {
             />
           </label>
 
-          <div className="flex flex-col gap-3 rounded-3xl border border-slate-800 bg-black p-4">
+          <div className="flex flex-col gap-3 rounded-3xl border border-slate-800 bg-[#0b1016] p-4">
             <p className="text-sm font-medium text-slate-300">Register as</p>
             <div className="flex flex-wrap gap-3">
               <button
                 type="button"
-                className={`rounded-full px-4 py-2 text-sm ${role === "student" ? "bg-sky-600 text-white" : "bg-black text-slate-300 border border-slate-700"}`}
+                className={`rounded-full px-4 py-2 text-sm ${role === "student" ? "bg-sky-600 text-white" : "bg-[#0b1016] text-slate-300 border border-slate-700"}`}
                 onClick={() => setRole("student")}
               >
                 Student
               </button>
               <button
                 type="button"
-                className={`rounded-full px-4 py-2 text-sm ${role === "teacher" ? "bg-sky-600 text-white" : "bg-black text-slate-300 border border-slate-700"}`}
+                className={`rounded-full px-4 py-2 text-sm ${role === "teacher" ? "bg-sky-600 text-white" : "bg-[#0b1016] text-slate-300 border border-slate-700"}`}
                 onClick={() => setRole("teacher")}
               >
                 Teacher

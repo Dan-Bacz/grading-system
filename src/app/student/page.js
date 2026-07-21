@@ -182,13 +182,13 @@ export default function StudentPage() {
           <div className="space-y-6">
             <h3 className="text-xl font-semibold text-white">Enrollment</h3>
             <p className="text-slate-400">Enroll based on your year level. Only subjects available for your year will appear here.</p>
-            <form onSubmit={handleEnroll} className="space-y-4 rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur">
+            <form onSubmit={handleEnroll} className="space-y-4 rounded-[24px] border border-slate-800 bg-[#0b1016] p-6 shadow-2xl shadow-[#04070c]/40 backdrop-blur">
               <label className="block">
                 <span className="text-sm font-medium text-slate-300">Subject</span>
                 <select
                   value={selectedSubject}
                   onChange={(event) => setSelectedSubject(event.target.value)}
-                  className="mt-2 w-full rounded-2xl border border-slate-700 bg-black px-4 py-3 text-white focus:border-sky-500 focus:outline-none"
+                  className="mt-2 w-full rounded-2xl border border-slate-700 bg-[#0b1016] px-4 py-3 text-white focus:border-sky-500 focus:outline-none"
                 >
                   <option value="">Select a subject</option>
                   {availableSubjects.map((item) => (
@@ -202,7 +202,7 @@ export default function StudentPage() {
               {message ? <p className="text-slate-300">{message}</p> : null}
               {error ? <p className="text-red-400">{error}</p> : null}
             </form>
-            <div className="rounded-[24px] border border-slate-800 bg-black p-6 text-slate-400">
+            <div className="rounded-[24px] border border-slate-800 bg-[#0b1016] p-6 text-slate-400">
               <p>Available subjects are drawn from teacher assignments. If no subjects appear, ask the admin to assign teachers and subjects.</p>
             </div>
           </div>
@@ -248,7 +248,7 @@ export default function StudentPage() {
   };
 
   return (
-    <main className="min-h-screen bg-black px-4 py-6 sm:px-6 sm:py-8">
+    <main className="min-h-screen bg-[#0b1016] px-4 py-6 sm:px-6 sm:py-8">
       <div className="mx-auto flex w-full max-w-7xl min-h-[calc(100vh-48px)] flex-col gap-6 lg:flex-row">
         <Sidebar
           title="FGBI Student"
@@ -260,7 +260,7 @@ export default function StudentPage() {
         />
 
         <div className="flex-1 space-y-6">
-          <section className="rounded-[28px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur sm:p-8">
+          <section className="rounded-[28px] border border-slate-800 bg-[#0b1016] p-6 shadow-2xl shadow-[#04070c]/40 backdrop-blur sm:p-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
               <div>
                 <p className="text-sm uppercase tracking-[0.2em] text-sky-400">Student portal</p>
@@ -273,7 +273,7 @@ export default function StudentPage() {
           {message ? <div className="rounded-3xl border border-emerald-800/60 bg-emerald-500/10 p-4 text-emerald-300 shadow-sm">{message}</div> : null}
           {error ? <div className="rounded-3xl border border-rose-800/60 bg-rose-500/10 p-4 text-rose-300 shadow-sm">{error}</div> : null}
 
-          <section className="rounded-[28px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur sm:p-8">{renderActivePane()}</section>
+          <section className="rounded-[28px] border border-slate-800 bg-[#0b1016] p-6 shadow-2xl shadow-[#04070c]/40 backdrop-blur sm:p-8">{renderActivePane()}</section>
         </div>
       </div>
     </main>
