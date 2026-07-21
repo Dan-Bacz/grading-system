@@ -24,11 +24,11 @@ function SimpleBarChart({ data }) {
     <div className="mt-6 space-y-4">
       {data.map((item) => (
         <div key={item.label}>
-          <div className="flex items-center justify-between text-sm text-slate-600">
+          <div className="flex items-center justify-between text-sm text-slate-400">
             <span>{item.label}</span>
-            <span className="font-semibold text-slate-900">{item.value}</span>
+            <span className="font-semibold text-white">{item.value}</span>
           </div>
-          <div className="mt-2 h-3 overflow-hidden rounded-full bg-slate-100">
+          <div className="mt-2 h-3 overflow-hidden rounded-full bg-slate-800">
             <div
               className="h-3 rounded-full"
               style={{ width: `${(item.value / maxValue) * 100}%`, backgroundColor: item.color }}
@@ -48,7 +48,7 @@ function SimplePieChart({ data, title }) {
 
   if (total === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-slate-300 bg-slate-50 p-6 text-center text-sm text-slate-600">
+      <div className="rounded-3xl border border-dashed border-slate-700 bg-slate-800/70 p-6 text-center text-sm text-slate-400">
         No {title.toLowerCase()} data yet.
       </div>
     );
@@ -82,12 +82,12 @@ function SimplePieChart({ data, title }) {
       </svg>
       <div className="flex-1 space-y-3">
         {data.map((item) => (
-          <div key={item.label} className="flex items-center justify-between text-sm text-slate-600">
+          <div key={item.label} className="flex items-center justify-between text-sm text-slate-400">
             <div className="flex items-center gap-2">
               <span className="h-3 w-3 rounded-full" style={{ backgroundColor: item.color }} />
               <span>{item.label}</span>
             </div>
-            <span className="font-semibold text-slate-900">{item.value}</span>
+            <span className="font-semibold text-white">{item.value}</span>
           </div>
         ))}
       </div>
@@ -276,9 +276,9 @@ export default function AdminPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-slate-50 p-6">
-        <div className="mx-auto max-w-xl rounded-3xl bg-white p-10 shadow-xl shadow-slate-200 text-center">
-          <p>Loading admin dashboard…</p>
+      <main className="min-h-screen p-6">
+        <div className="mx-auto max-w-xl rounded-[32px] border border-slate-800 bg-slate-900/85 p-10 text-center shadow-2xl shadow-black/30 backdrop-blur">
+          <p className="text-slate-300">Loading admin dashboard…</p>
         </div>
       </main>
     );
@@ -303,43 +303,43 @@ export default function AdminPage() {
         return (
           <div className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-                <p className="text-sm text-slate-500">Pending approvals</p>
-                <p className="mt-4 text-3xl font-semibold text-slate-900">{pendingUsers.length}</p>
+              <div className="rounded-[24px] border border-slate-800 bg-slate-900/85 p-6 shadow-2xl shadow-black/30 backdrop-blur">
+                <p className="text-sm text-slate-400">Pending approvals</p>
+                <p className="mt-4 text-3xl font-semibold text-white">{pendingUsers.length}</p>
               </div>
-              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-                <p className="text-sm text-slate-500">Teachers</p>
-                <p className="mt-4 text-3xl font-semibold text-slate-900">{teachers.length}</p>
+              <div className="rounded-[24px] border border-slate-800 bg-slate-900/85 p-6 shadow-2xl shadow-black/30 backdrop-blur">
+                <p className="text-sm text-slate-400">Teachers</p>
+                <p className="mt-4 text-3xl font-semibold text-white">{teachers.length}</p>
               </div>
-              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-                <p className="text-sm text-slate-500">Students</p>
-                <p className="mt-4 text-3xl font-semibold text-slate-900">{students.length}</p>
+              <div className="rounded-[24px] border border-slate-800 bg-slate-900/85 p-6 shadow-2xl shadow-black/30 backdrop-blur">
+                <p className="text-sm text-slate-400">Students</p>
+                <p className="mt-4 text-3xl font-semibold text-white">{students.length}</p>
               </div>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-                <h3 className="text-xl font-semibold text-slate-900">Account activity</h3>
+              <div className="rounded-[24px] border border-slate-800 bg-slate-900/85 p-6 shadow-2xl shadow-black/30 backdrop-blur">
+                <h3 className="text-xl font-semibold text-white">Account activity</h3>
                 <SimpleBarChart data={roleBreakdown} />
               </div>
-              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-                <h3 className="text-xl font-semibold text-slate-900">Role distribution</h3>
+              <div className="rounded-[24px] border border-slate-800 bg-slate-900/85 p-6 shadow-2xl shadow-black/30 backdrop-blur">
+                <h3 className="text-xl font-semibold text-white">Role distribution</h3>
                 <SimplePieChart data={roleBreakdown} title="role distribution" />
               </div>
             </div>
 
             <div className="grid gap-6 lg:grid-cols-2">
-              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-                <h3 className="text-xl font-semibold text-slate-900">Grade performance</h3>
+              <div className="rounded-[24px] border border-slate-800 bg-slate-900/85 p-6 shadow-2xl shadow-black/30 backdrop-blur">
+                <h3 className="text-xl font-semibold text-white">Grade performance</h3>
                 <SimplePieChart data={gradeBreakdown} title="grade performance" />
               </div>
-              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-                <h3 className="text-xl font-semibold text-slate-900">Quick summary</h3>
-                <p className="mt-3 text-slate-600">Use the sidebar to manage approvals, faculty, subjects, and student enrollment for each semester.</p>
-                <div className="mt-6 space-y-3 text-sm text-slate-600">
-                  <div className="rounded-2xl bg-slate-50 p-3">{pendingUsers.length} accounts need review.</div>
-                  <div className="rounded-2xl bg-slate-50 p-3">{grades.length} grade entries are currently available.</div>
-                  <div className="rounded-2xl bg-slate-50 p-3">{subjects.length} subjects and {semesters.length} semesters are configured.</div>
+              <div className="rounded-[24px] border border-slate-800 bg-slate-900/85 p-6 shadow-2xl shadow-black/30 backdrop-blur">
+                <h3 className="text-xl font-semibold text-white">Quick summary</h3>
+                <p className="mt-3 text-slate-400">Use the sidebar to manage approvals, faculty, subjects, and student enrollment for each semester.</p>
+                <div className="mt-6 space-y-3 text-sm text-slate-400">
+                  <div className="rounded-2xl border border-slate-800 bg-slate-800/70 p-3">{pendingUsers.length} accounts need review.</div>
+                  <div className="rounded-2xl border border-slate-800 bg-slate-800/70 p-3">{grades.length} grade entries are currently available.</div>
+                  <div className="rounded-2xl border border-slate-800 bg-slate-800/70 p-3">{subjects.length} subjects and {semesters.length} semesters are configured.</div>
                 </div>
               </div>
             </div>
@@ -348,17 +348,17 @@ export default function AdminPage() {
       case "approve":
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-slate-900">Pending accounts</h3>
+            <h3 className="text-xl font-semibold text-white">Pending accounts</h3>
             {pendingUsers.length === 0 ? (
-              <p className="text-slate-600">No pending accounts right now.</p>
+              <p className="text-slate-400">No pending accounts right now.</p>
             ) : (
               <div className="space-y-4">
                 {pendingUsers.map((user) => (
-                  <div key={user.user_id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                  <div key={user.user_id} className="rounded-3xl border border-slate-800 bg-slate-800/70 p-4">
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                       <div>
-                        <p className="font-semibold text-slate-900">{user.full_name}</p>
-                        <p className="text-sm text-slate-600">{user.email} · {user.role}</p>
+                        <p className="font-semibold text-white">{user.full_name}</p>
+                        <p className="text-sm text-slate-400">{user.email} · {user.role}</p>
                       </div>
                       <div className="flex gap-3">
                         <button
@@ -384,16 +384,16 @@ export default function AdminPage() {
       case "faculty":
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-slate-900">Faculty list</h3>
+            <h3 className="text-xl font-semibold text-white">Faculty list</h3>
             {teachers.length === 0 ? (
-              <p className="text-slate-600">No teachers have been created yet.</p>
+              <p className="text-slate-400">No teachers have been created yet.</p>
             ) : (
               <div className="grid gap-4">
                 {teachers.map((teacher) => (
-                  <div key={teacher.user_id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                    <p className="font-semibold text-slate-900">{teacher.full_name}</p>
-                    <p className="text-sm text-slate-600">Subject: {teacher.assigned_subject || "Not assigned"}</p>
-                    <p className="text-sm text-slate-600">Email: {teacher.email}</p>
+                  <div key={teacher.user_id} className="rounded-3xl border border-slate-800 bg-slate-800/70 p-4">
+                    <p className="font-semibold text-white">{teacher.full_name}</p>
+                    <p className="text-sm text-slate-400">Subject: {teacher.assigned_subject || "Not assigned"}</p>
+                    <p className="text-sm text-slate-400">Email: {teacher.email}</p>
                   </div>
                 ))}
               </div>
@@ -403,16 +403,16 @@ export default function AdminPage() {
       case "students":
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-slate-900">Student list</h3>
+            <h3 className="text-xl font-semibold text-white">Student list</h3>
             {students.length === 0 ? (
-              <p className="text-slate-600">No students are active yet.</p>
+              <p className="text-slate-400">No students are active yet.</p>
             ) : (
               <div className="grid gap-4">
                 {students.map((student) => (
-                  <div key={student.user_id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                    <p className="font-semibold text-slate-900">{student.full_name}</p>
-                    <p className="text-sm text-slate-600">Email: {student.email}</p>
-                    <p className="text-sm text-slate-600">Status: {student.status}</p>
+                  <div key={student.user_id} className="rounded-3xl border border-slate-800 bg-slate-800/70 p-4">
+                    <p className="font-semibold text-white">{student.full_name}</p>
+                    <p className="text-sm text-slate-400">Email: {student.email}</p>
+                    <p className="text-sm text-slate-400">Status: {student.status}</p>
                   </div>
                 ))}
               </div>
@@ -422,17 +422,17 @@ export default function AdminPage() {
       case "grades":
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-slate-900">Grades overview</h3>
+            <h3 className="text-xl font-semibold text-white">Grades overview</h3>
             {grades.length === 0 ? (
-              <p className="text-slate-600">No grades have been entered yet.</p>
+              <p className="text-slate-400">No grades have been entered yet.</p>
             ) : (
               <div className="space-y-4">
                 {grades.map((grade) => (
-                  <div key={grade.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                    <p className="font-semibold text-slate-900">Subject: {grade.subject}</p>
-                    <p className="text-sm text-slate-600">Student ID: {grade.student_id}</p>
-                    <p className="text-sm text-slate-600">Teacher ID: {grade.teacher_id}</p>
-                    <p className="text-sm text-slate-600">Score: {grade.score}</p>
+                  <div key={grade.id} className="rounded-3xl border border-slate-800 bg-slate-800/70 p-4">
+                    <p className="font-semibold text-white">Subject: {grade.subject}</p>
+                    <p className="text-sm text-slate-400">Student ID: {grade.student_id}</p>
+                    <p className="text-sm text-slate-400">Teacher ID: {grade.teacher_id}</p>
+                    <p className="text-sm text-slate-400">Score: {grade.score}</p>
                   </div>
                 ))}
               </div>
@@ -442,43 +442,43 @@ export default function AdminPage() {
       case "enrollment":
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-slate-900">Enrollment and semesters</h3>
+            <h3 className="text-xl font-semibold text-white">Enrollment and semesters</h3>
             <div className="grid gap-6 lg:grid-cols-2">
-              <div className="rounded-3xl bg-slate-50 p-6">
-                <h4 className="text-lg font-semibold text-slate-900">Add new semester</h4>
+              <div className="rounded-[24px] border border-slate-800 bg-slate-900/85 p-6 shadow-2xl shadow-black/30 backdrop-blur">
+                <h4 className="text-lg font-semibold text-white">Add new semester</h4>
                 <form onSubmit={handleAddSemester} className="mt-4 space-y-4">
                   <input
                     value={semesterName}
                     onChange={(event) => setSemesterName(event.target.value)}
                     placeholder="Semester name"
-                    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 focus:border-sky-500 focus:outline-none"
+                    className="w-full rounded-2xl border border-slate-700 bg-slate-800/80 px-4 py-3 text-white placeholder:text-slate-500 focus:border-sky-500 focus:outline-none"
                   />
                   <button className="rounded-2xl bg-sky-600 px-5 py-3 text-white transition hover:bg-sky-500">Add Semester</button>
                 </form>
               </div>
-              <div className="rounded-3xl bg-slate-50 p-6">
-                <h4 className="text-lg font-semibold text-slate-900">Add new subject</h4>
+              <div className="rounded-[24px] border border-slate-800 bg-slate-900/85 p-6 shadow-2xl shadow-black/30 backdrop-blur">
+                <h4 className="text-lg font-semibold text-white">Add new subject</h4>
                 <form onSubmit={handleAddSubject} className="mt-4 space-y-4">
                   <input
                     value={subjectName}
                     onChange={(event) => setSubjectName(event.target.value)}
                     placeholder="Subject name"
-                    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 focus:border-sky-500 focus:outline-none"
+                    className="w-full rounded-2xl border border-slate-700 bg-slate-800/80 px-4 py-3 text-white placeholder:text-slate-500 focus:border-sky-500 focus:outline-none"
                   />
                   <button className="rounded-2xl bg-sky-600 px-5 py-3 text-white transition hover:bg-sky-500">Save Subject</button>
                 </form>
               </div>
             </div>
 
-            <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-              <h4 className="text-lg font-semibold text-slate-900">Current subjects</h4>
+            <div className="rounded-[24px] border border-slate-800 bg-slate-900/85 p-6 shadow-2xl shadow-black/30 backdrop-blur">
+              <h4 className="text-lg font-semibold text-white">Current subjects</h4>
               {subjects.length === 0 ? (
-                <p className="mt-4 text-slate-600">No subjects created yet.</p>
+                <p className="mt-4 text-slate-400">No subjects created yet.</p>
               ) : (
                 <div className="mt-4 grid gap-3">
                   {subjects.map((subject) => (
-                    <div key={subject.id} className="rounded-3xl bg-slate-50 p-4">
-                      <p className="font-semibold text-slate-900">{subject.name}</p>
+                    <div key={subject.id} className="rounded-3xl border border-slate-800 bg-slate-800/70 p-4">
+                      <p className="font-semibold text-white">{subject.name}</p>
                     </div>
                   ))}
                 </div>
@@ -489,15 +489,15 @@ export default function AdminPage() {
       case "system":
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-slate-900">System information</h3>
+            <h3 className="text-xl font-semibold text-white">System information</h3>
             <div className="grid gap-6 md:grid-cols-2">
-              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-                <p className="font-semibold text-slate-900">Active subjects</p>
-                <p className="mt-3 text-slate-600">{subjects.length}</p>
+              <div className="rounded-[24px] border border-slate-800 bg-slate-900/85 p-6 shadow-2xl shadow-black/30 backdrop-blur">
+                <p className="font-semibold text-white">Active subjects</p>
+                <p className="mt-3 text-slate-400">{subjects.length}</p>
               </div>
-              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-                <p className="font-semibold text-slate-900">Active semesters</p>
-                <p className="mt-3 text-slate-600">{semesters.length}</p>
+              <div className="rounded-[24px] border border-slate-800 bg-slate-900/85 p-6 shadow-2xl shadow-black/30 backdrop-blur">
+                <p className="font-semibold text-white">Active semesters</p>
+                <p className="mt-3 text-slate-400">{semesters.length}</p>
               </div>
             </div>
           </div>
@@ -505,8 +505,8 @@ export default function AdminPage() {
       case "logs":
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-slate-900">System logs</h3>
-            <div className="rounded-3xl bg-slate-50 p-6 text-slate-600">
+            <h3 className="text-xl font-semibold text-white">System logs</h3>
+            <div className="rounded-[24px] border border-slate-800 bg-slate-900/85 p-6 text-slate-400 shadow-2xl shadow-black/30 backdrop-blur">
               <p>Log messages are not available in this demo UI yet.</p>
               <p className="mt-4">When connected to a real audit service, this view shows recent admin actions, login attempts, and grade changes.</p>
             </div>
@@ -515,11 +515,11 @@ export default function AdminPage() {
       case "settings":
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-slate-900">Settings</h3>
-            <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-              <p className="text-slate-600">Email: {profile.email}</p>
-              <p className="mt-2 text-slate-600">Name: {profile.full_name}</p>
-              <p className="mt-2 text-slate-600">Role: {profile.role}</p>
+            <h3 className="text-xl font-semibold text-white">Settings</h3>
+            <div className="rounded-[24px] border border-slate-800 bg-slate-900/85 p-6 shadow-2xl shadow-black/30 backdrop-blur">
+              <p className="text-slate-400">Email: {profile.email}</p>
+              <p className="mt-2 text-slate-400">Name: {profile.full_name}</p>
+              <p className="mt-2 text-slate-400">Role: {profile.role}</p>
             </div>
           </div>
         );
@@ -531,15 +531,15 @@ export default function AdminPage() {
   return (
     <main className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 sm:py-8">
       <div className="mx-auto flex w-full max-w-7xl min-h-[calc(100vh-48px)] flex-col gap-6 lg:flex-row">
-        <div className="flex items-center justify-between gap-4 rounded-3xl bg-white p-4 shadow-xl shadow-slate-200 lg:hidden">
+        <div className="flex items-center justify-between gap-4 rounded-[24px] border border-slate-800 bg-slate-900/85 p-4 shadow-2xl shadow-black/30 backdrop-blur lg:hidden">
           <div>
-            <p className="text-xs uppercase tracking-[0.3em] text-sky-600">FGBI Admin</p>
-            <h1 className="mt-2 text-xl font-semibold text-slate-900">{profile.full_name}</h1>
+            <p className="text-xs uppercase tracking-[0.3em] text-sky-400">FGBI Admin</p>
+            <h1 className="mt-2 text-xl font-semibold text-white">{profile.full_name}</h1>
           </div>
           <button
             type="button"
             onClick={() => setSidebarOpen(true)}
-            className="rounded-2xl bg-slate-950 px-4 py-2 text-sm font-semibold text-white transition hover:bg-slate-800"
+            className="rounded-2xl bg-slate-100 px-4 py-2 text-sm font-semibold text-slate-900 transition hover:bg-white"
           >
             Menu
           </button>
@@ -574,20 +574,20 @@ export default function AdminPage() {
         </div>
 
         <div className="flex-1 space-y-6 lg:ml-[0px]">
-          <section className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200 sm:p-8">
+          <section className="rounded-[28px] border border-slate-800 bg-slate-900/85 p-6 shadow-2xl shadow-black/30 backdrop-blur sm:p-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
               <div>
-                <p className="text-sm uppercase tracking-[0.2em] text-sky-600">Admin panel</p>
-                <h1 className="mt-3 text-3xl font-semibold text-slate-900">{profile.full_name}</h1>
-                <p className="mt-2 text-slate-600">Manage students, teachers, subjects, enrollment, and system settings.</p>
+                <p className="text-sm uppercase tracking-[0.2em] text-sky-400">Admin panel</p>
+                <h1 className="mt-3 text-3xl font-semibold text-white">{profile.full_name}</h1>
+                <p className="mt-2 text-slate-400">Manage students, teachers, subjects, enrollment, and system settings.</p>
               </div>
             </div>
           </section>
 
-          {message ? <div className="rounded-3xl bg-emerald-50 p-4 text-emerald-800 shadow-sm">{message}</div> : null}
-          {error ? <div className="rounded-3xl bg-rose-50 p-4 text-rose-800 shadow-sm">{error}</div> : null}
+          {message ? <div className="rounded-3xl border border-emerald-800/60 bg-emerald-500/10 p-4 text-emerald-300 shadow-sm">{message}</div> : null}
+          {error ? <div className="rounded-3xl border border-rose-800/60 bg-rose-500/10 p-4 text-rose-300 shadow-sm">{error}</div> : null}
 
-          <section className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200 sm:p-8">{renderActivePane()}</section>
+          <section className="rounded-[28px] border border-slate-800 bg-slate-900/85 p-6 shadow-2xl shadow-black/30 backdrop-blur sm:p-8">{renderActivePane()}</section>
         </div>
       </div>
     </main>
