@@ -17,25 +17,64 @@ const adminMenu = [
   { key: "settings", label: "Settings" },
 ];
 
+function polarToCartesian(cx, cy, radius, angleInDegrees) {
+  const angleInRadians = (angleInDegrees - 90) * (Math.PI / 180);
+  return {
+    x: cx + radius * Math.cos(angleInRadians),
+    y: cy + radius * Math.sin(angleInRadians),
+  };
+}
+
+function describePieSlice(cx, cy, radius, startAngle, endAngle) {
+  const start = polarToCartesian(cx, cy, radius, endAngle);
+  const end = polarToCartesian(cx, cy, radius, startAngle);
+  const largeArcFlag = endAngle - startAngle <= 180 ? "0" : "1";
+
+  return `M ${cx} ${cy} L ${start.x} ${start.y} A ${radius} ${radius} 0 ${largeArcFlag} 0 ${end.x} ${end.y} Z`;
+}
+
 function SimpleBarChart({ data }) {
   const maxValue = Math.max(...data.map((item) => item.value), 1);
 
   return (
-    <div className="mt-6 space-y-4 rounded-2xl bg-[#0b1016] p-3">
-      {data.map((item) => (
-        <div key={item.label}>
-          <div className="flex items-center justify-between text-sm text-slate-400">
-            <span>{item.label}</span>
-            <span className="font-semibold text-white">{item.value}</span>
+    <div className="mt-6 space-y-4 rounded-[20px] border border-slate-800/80 bg-[#0b1016] p-4">
+      {data.map((item) => {
+        const height = Math.max(44, (item.value / maxValue) * 100);
+
+        return (
+          <div key={item.label}>
+            <div className="flex items-center justify-between text-sm text-slate-400">
+              <span>{item.label}</span>
+              <span className="font-semibold text-white">{item.value}</span>
+            </div>
+            <div className="mt-2 flex h-24 items-end rounded-2xl border border-slate-700/70 bg-slate-900/70 p-2">
+              <div className="relative h-full w-full">
+                <div
+                  className="absolute bottom-0 left-0 right-0 rounded-t-[14px] border border-slate-600/70"
+                  style={{
+                    height: `${height}%`,
+                    background: `linear-gradient(145deg, ${item.color}, #111827)`,
+                    boxShadow: `0 14px 24px rgba(0, 0, 0, 0.35)`,
+                    transform: 'perspective(300px) rotateX(8deg)',
+                  }}
+                />
+                <div
+                  className="absolute bottom-0 left-0 right-0 h-3 rounded-t-[14px]"
+                  style={{
+                    background: 'linear-gradient(90deg, rgba(255,255,255,0.2), transparent)',
+                  }}
+                />
+                <div
+                  className="absolute bottom-0 right-0 top-0 w-3 rounded-r-[14px]"
+                  style={{
+                    background: 'linear-gradient(90deg, rgba(255,255,255,0.16), rgba(0,0,0,0.28))',
+                  }}
+                />
+              </div>
+            </div>
           </div>
-          <div className="mt-2 h-3 overflow-hidden rounded-full bg-slate-800">
-            <div
-              className="h-3 rounded-full"
-              style={{ width: `${(item.value / maxValue) * 100}%`, backgroundColor: item.color }}
-            />
-          </div>
-        </div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -43,8 +82,7 @@ function SimpleBarChart({ data }) {
 function SimplePieChart({ data, title }) {
   const total = data.reduce((sum, item) => sum + item.value, 0);
   const radius = 48;
-  const circumference = 2 * Math.PI * radius;
-  let offset = 0;
+  let currentAngle = 0;
 
   if (total === 0) {
     return (
@@ -56,30 +94,33 @@ function SimplePieChart({ data, title }) {
 
   return (
     <div className="mt-6 flex flex-col gap-6 md:flex-row md:items-center">
-      <svg viewBox="0 0 140 140" className="mx-auto h-40 w-40 shrink-0 rounded-full bg-[#0b1016] p-2">
-        {data.map((item) => {
-          const segmentLength = total === 0 ? 0 : (item.value / total) * circumference;
-          const strokeDasharray = `${segmentLength} ${circumference - segmentLength}`;
-          const dashOffset = -offset;
-          offset += segmentLength;
+      <div className="mx-auto flex h-40 w-40 items-center justify-center rounded-full bg-[#0b1016] p-2 shadow-[0_20px_35px_rgba(0,0,0,0.35)]">
+        <svg viewBox="0 0 140 140" className="h-40 w-40">
+          <defs>
+            <filter id="pie-shadow" x="-20%" y="-20%" width="140%" height="140%">
+              <feDropShadow dx="0" dy="8" stdDeviation="4" floodColor="rgba(0,0,0,0.45)" />
+            </filter>
+          </defs>
+          <ellipse cx="70" cy="104" rx="34" ry="10" fill="rgba(0,0,0,0.35)" />
+          {data.map((item) => {
+            const segmentAngle = (item.value / total) * 360;
+            const startAngle = currentAngle;
+            const endAngle = currentAngle + segmentAngle;
+            currentAngle = endAngle;
 
-          return (
-            <circle
-              key={item.label}
-              cx="70"
-              cy="70"
-              r={radius}
-              fill="none"
-              stroke={item.color}
-              strokeWidth="24"
-              strokeLinecap="round"
-              strokeDasharray={strokeDasharray}
-              strokeDashoffset={dashOffset}
-              transform="rotate(-90 70 70)"
-            />
-          );
-        })}
-      </svg>
+            return (
+              <path
+                key={item.label}
+                d={describePieSlice(70, 70, 48, startAngle, endAngle)}
+                fill={item.color}
+                filter="url(#pie-shadow)"
+              />
+            );
+          })}
+          <circle cx="70" cy="70" r="30" fill="#0b1016" stroke="rgba(148,163,184,0.25)" strokeWidth="1.5" />
+          <circle cx="70" cy="70" r="18" fill="rgba(255,255,255,0.06)" />
+        </svg>
+      </div>
       <div className="flex-1 space-y-3">
         {data.map((item) => (
           <div key={item.label} className="flex items-center justify-between text-sm text-slate-400">
