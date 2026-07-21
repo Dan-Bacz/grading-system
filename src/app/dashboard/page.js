@@ -49,9 +49,9 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-slate-50 p-6">
-        <div className="mx-auto max-w-xl rounded-3xl bg-white p-10 text-center shadow-xl shadow-slate-200">
-          <p className="text-slate-700">Loading dashboard…</p>
+      <main className="min-h-screen p-6">
+        <div className="mx-auto max-w-xl rounded-[32px] border border-slate-800 bg-slate-900/85 p-10 text-center shadow-2xl shadow-black/30 backdrop-blur">
+          <p className="text-slate-300">Loading dashboard…</p>
         </div>
       </main>
     );
@@ -59,10 +59,10 @@ export default function DashboardPage() {
 
   if (error) {
     return (
-      <main className="min-h-screen bg-slate-50 p-6">
-        <div className="mx-auto max-w-xl rounded-3xl bg-white p-10 shadow-xl shadow-slate-200">
-          <p className="text-red-600">{error}</p>
-          <Link href="/login" className="text-sky-700 hover:underline">
+      <main className="min-h-screen p-6">
+        <div className="mx-auto max-w-xl rounded-[32px] border border-slate-800 bg-slate-900/85 p-10 shadow-2xl shadow-black/30 backdrop-blur">
+          <p className="text-red-400">{error}</p>
+          <Link href="/login" className="mt-4 inline-flex text-sky-400 hover:text-sky-300">
             Return to login
           </Link>
         </div>
@@ -78,29 +78,29 @@ export default function DashboardPage() {
       : "/student";
 
   return (
-    <main className="min-h-screen bg-slate-50 p-6">
-      <div className="mx-auto max-w-3xl rounded-3xl bg-white p-8 shadow-xl shadow-slate-200">
+    <main className="min-h-screen p-6">
+      <div className="mx-auto max-w-3xl rounded-[32px] border border-slate-800 bg-slate-900/85 p-8 shadow-2xl shadow-black/30 backdrop-blur">
         <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
           <div>
-            <p className="text-sm uppercase tracking-[0.2em] text-sky-600">Welcome back</p>
-            <h1 className="mt-3 text-3xl font-semibold text-slate-900">{profile.full_name}</h1>
-            <p className="mt-2 text-slate-600">Role: {profile.role}</p>
+            <p className="text-sm uppercase tracking-[0.2em] text-sky-400">Welcome back</p>
+            <h1 className="mt-3 text-3xl font-semibold text-white">{profile.full_name}</h1>
+            <p className="mt-2 text-slate-400">Role: {profile.role}</p>
           </div>
 
           <button
             onClick={handleSignOut}
-            className="rounded-2xl bg-slate-950 px-5 py-3 text-white transition hover:bg-slate-800"
+            className="rounded-2xl bg-slate-100 px-5 py-3 text-slate-900 transition hover:bg-white"
           >
             Sign Out
           </button>
         </div>
 
-        <div className="mt-8 rounded-3xl border border-slate-200 bg-slate-50 p-6">
-          <p className="text-slate-700">
-            Account status: <span className="font-semibold">{profile.status}</span>
+        <div className="mt-8 rounded-3xl border border-slate-800 bg-slate-800/70 p-6">
+          <p className="text-slate-300">
+            Account status: <span className="font-semibold text-white">{profile.status}</span>
           </p>
           {profile.status !== "active" ? (
-            <p className="mt-4 text-sm text-slate-600">
+            <p className="mt-4 text-sm text-slate-400">
               Your account is waiting for admin approval. Once approved, you can access your role-specific dashboard.
             </p>
           ) : (

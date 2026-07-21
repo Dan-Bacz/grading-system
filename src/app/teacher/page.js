@@ -142,9 +142,9 @@ export default function TeacherPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-slate-50 p-6">
-        <div className="mx-auto max-w-xl rounded-3xl bg-white p-10 shadow-xl shadow-slate-200 text-center">
-          <p>Loading teacher dashboard…</p>
+      <main className="min-h-screen p-6">
+        <div className="mx-auto max-w-xl rounded-[32px] border border-slate-800 bg-slate-900/85 p-10 text-center shadow-2xl shadow-black/30 backdrop-blur">
+          <p className="text-slate-300">Loading teacher dashboard…</p>
         </div>
       </main>
     );
@@ -260,7 +260,7 @@ export default function TeacherPage() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 sm:py-8">
+    <main className="min-h-screen px-4 py-6 sm:px-6 sm:py-8">
       <div className="mx-auto flex w-full max-w-7xl min-h-[calc(100vh-48px)] flex-col gap-6 lg:flex-row">
         <Sidebar
           title="FGBI Teacher"
@@ -272,20 +272,20 @@ export default function TeacherPage() {
         />
 
         <div className="flex-1 space-y-6">
-          <section className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200 sm:p-8">
+          <section className="rounded-[28px] border border-slate-800 bg-slate-900/85 p-6 shadow-2xl shadow-black/30 backdrop-blur sm:p-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
               <div>
-                <p className="text-sm uppercase tracking-[0.2em] text-sky-600">Teacher dashboard</p>
-                <h1 className="mt-3 text-3xl font-semibold text-slate-900">{profile.full_name}</h1>
-                <p className="mt-2 text-slate-600">Manage your assigned subjects, view students, and submit grades.</p>
+                <p className="text-sm uppercase tracking-[0.2em] text-sky-400">Teacher dashboard</p>
+                <h1 className="mt-3 text-3xl font-semibold text-white">{profile.full_name}</h1>
+                <p className="mt-2 text-slate-400">Manage your assigned subjects, view students, and submit grades.</p>
               </div>
             </div>
           </section>
 
-          {message ? <div className="rounded-3xl bg-emerald-50 p-4 text-emerald-800 shadow-sm">{message}</div> : null}
-          {error ? <div className="rounded-3xl bg-rose-50 p-4 text-rose-800 shadow-sm">{error}</div> : null}
+          {message ? <div className="rounded-3xl border border-emerald-800/60 bg-emerald-500/10 p-4 text-emerald-300 shadow-sm">{message}</div> : null}
+          {error ? <div className="rounded-3xl border border-rose-800/60 bg-rose-500/10 p-4 text-rose-300 shadow-sm">{error}</div> : null}
 
-          <section className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200 sm:p-8">{renderActivePane()}</section>
+          <section className="rounded-[28px] border border-slate-800 bg-slate-900/85 p-6 shadow-2xl shadow-black/30 backdrop-blur sm:p-8">{renderActivePane()}</section>
         </div>
       </div>
     </main>
