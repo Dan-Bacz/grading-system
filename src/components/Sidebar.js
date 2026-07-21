@@ -10,15 +10,20 @@ export default function Sidebar({ title, menuItems, activeKey, onSelect, profile
             <h2 className="mt-4 text-2xl font-semibold text-white">{profile?.full_name || "User"}</h2>
             <p className="mt-2 text-sm text-slate-400">Role: {profile?.role || "-"}</p>
           </div>
-          {onClose ? (
-            <button
-              type="button"
-              className="lg:hidden rounded-2xl border border-slate-700 bg-[#0b1016] px-3 py-2 text-sm font-semibold text-slate-200 transition hover:bg-slate-800"
-              onClick={onClose}
-            >
-              Close
-            </button>
-          ) : null}
+          <div className="flex items-center gap-2">
+            <div className="flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border border-slate-700 bg-slate-950/80 shadow-[0_0_0_1px_rgba(255,255,255,0.04),0_10px_25px_rgba(0,0,0,0.35)]">
+              <img src="/fgbi.png" alt="FGBI logo" className="h-12 w-12 object-contain" />
+            </div>
+            {onClose ? (
+              <button
+                type="button"
+                className="lg:hidden rounded-2xl border border-slate-700 bg-[#0b1016] px-3 py-2 text-sm font-semibold text-slate-200 transition hover:bg-slate-800"
+                onClick={onClose}
+              >
+                Close
+              </button>
+            ) : null}
+          </div>
         </div>
 
         <nav className="space-y-2">
