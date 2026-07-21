@@ -110,9 +110,9 @@ export default function StudentPage() {
 
   if (loading) {
     return (
-      <main className="min-h-screen bg-slate-50 p-6">
-        <div className="mx-auto max-w-xl rounded-3xl bg-white p-10 shadow-xl shadow-slate-200 text-center">
-          <p>Loading student dashboard…</p>
+      <main className="min-h-screen bg-black p-6">
+        <div className="mx-auto max-w-xl rounded-[32px] border border-slate-800 bg-black p-10 text-center shadow-2xl shadow-black/30 backdrop-blur">
+          <p className="text-slate-300">Loading student dashboard…</p>
         </div>
       </main>
     );
@@ -120,9 +120,9 @@ export default function StudentPage() {
 
   if (error) {
     return (
-      <main className="min-h-screen bg-slate-50 p-6">
-        <div className="mx-auto max-w-xl rounded-3xl bg-white p-10 shadow-xl shadow-slate-200 text-center">
-          <p className="text-red-600">{error}</p>
+      <main className="min-h-screen bg-black p-6">
+        <div className="mx-auto max-w-xl rounded-[32px] border border-slate-800 bg-black p-10 text-center shadow-2xl shadow-black/30 backdrop-blur">
+          <p className="text-red-400">{error}</p>
         </div>
       </main>
     );
@@ -134,43 +134,43 @@ export default function StudentPage() {
         return (
           <div className="space-y-6">
             <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
-              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-                <p className="text-sm text-slate-500">Year level</p>
-                <p className="mt-4 text-3xl font-semibold text-slate-900">{profile.year_level || "Not set"}</p>
+              <div className="rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur">
+                <p className="text-sm text-slate-400">Year level</p>
+                <p className="mt-4 text-3xl font-semibold text-white">{profile.year_level || "Not set"}</p>
               </div>
-              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-                <p className="text-sm text-slate-500">Enrolled subjects</p>
-                <p className="mt-4 text-3xl font-semibold text-slate-900">{enrolledSubjects.length}</p>
+              <div className="rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur">
+                <p className="text-sm text-slate-400">Enrolled subjects</p>
+                <p className="mt-4 text-3xl font-semibold text-white">{enrolledSubjects.length}</p>
               </div>
-              <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-                <p className="text-sm text-slate-500">Grades available</p>
-                <p className="mt-4 text-3xl font-semibold text-slate-900">{grades.length}</p>
+              <div className="rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur">
+                <p className="text-sm text-slate-400">Grades available</p>
+                <p className="mt-4 text-3xl font-semibold text-white">{grades.length}</p>
               </div>
             </div>
-            <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-              <h3 className="text-xl font-semibold text-slate-900">Welcome to your student portal</h3>
-              <p className="mt-3 text-slate-600">Use the sidebar to review your grades, enroll in subjects, and print your report card.</p>
+            <div className="rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur">
+              <h3 className="text-xl font-semibold text-white">Welcome to your student portal</h3>
+              <p className="mt-3 text-slate-400">Use the sidebar to review your grades, enroll in subjects, and print your report card.</p>
             </div>
           </div>
         );
       case "grades":
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-slate-900">Grades</h3>
+            <h3 className="text-xl font-semibold text-white">Grades</h3>
             {grades.length === 0 ? (
-              <p className="text-slate-600">You have no grades yet.</p>
+              <p className="text-slate-400">You have no grades yet.</p>
             ) : (
               <div className="space-y-4">
                 {grades.map((grade) => (
-                  <div key={grade.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
+                  <div key={grade.id} className="rounded-3xl border border-slate-800 bg-black p-4">
                     <div className="flex flex-col gap-2 sm:flex-row sm:justify-between sm:items-center">
                       <div>
-                        <p className="font-semibold text-slate-900">{grade.subject}</p>
-                        <p className="text-sm text-slate-600">Score: {grade.score}</p>
+                        <p className="font-semibold text-white">{grade.subject}</p>
+                        <p className="text-sm text-slate-400">Score: {grade.score}</p>
                       </div>
-                      <p className="text-sm text-slate-600">Teacher: {teacherMap[grade.teacher_id] || "Unknown"}</p>
+                      <p className="text-sm text-slate-400">Teacher: {teacherMap[grade.teacher_id] || "Unknown"}</p>
                     </div>
-                    {grade.comment ? <p className="mt-3 text-sm text-slate-600">Comment: {grade.comment}</p> : null}
+                    {grade.comment ? <p className="mt-3 text-sm text-slate-400">Comment: {grade.comment}</p> : null}
                   </div>
                 ))}
               </div>
@@ -180,15 +180,15 @@ export default function StudentPage() {
       case "enrollment":
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-slate-900">Enrollment</h3>
-            <p className="text-slate-600">Enroll based on your year level. Only subjects available for your year will appear here.</p>
-            <form onSubmit={handleEnroll} className="space-y-4 rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
+            <h3 className="text-xl font-semibold text-white">Enrollment</h3>
+            <p className="text-slate-400">Enroll based on your year level. Only subjects available for your year will appear here.</p>
+            <form onSubmit={handleEnroll} className="space-y-4 rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur">
               <label className="block">
-                <span className="text-sm font-medium text-slate-700">Subject</span>
+                <span className="text-sm font-medium text-slate-300">Subject</span>
                 <select
                   value={selectedSubject}
                   onChange={(event) => setSelectedSubject(event.target.value)}
-                  className="mt-2 w-full rounded-2xl border border-slate-300 bg-slate-50 px-4 py-3 focus:border-sky-500 focus:outline-none"
+                  className="mt-2 w-full rounded-2xl border border-slate-700 bg-black px-4 py-3 text-white focus:border-sky-500 focus:outline-none"
                 >
                   <option value="">Select a subject</option>
                   {availableSubjects.map((item) => (
@@ -199,10 +199,10 @@ export default function StudentPage() {
                 </select>
               </label>
               <button className="rounded-2xl bg-sky-600 px-5 py-3 text-white transition hover:bg-sky-500">Enroll</button>
-              {message ? <p className="text-slate-700">{message}</p> : null}
-              {error ? <p className="text-red-600">{error}</p> : null}
+              {message ? <p className="text-slate-300">{message}</p> : null}
+              {error ? <p className="text-red-400">{error}</p> : null}
             </form>
-            <div className="rounded-3xl bg-slate-50 p-6 text-slate-600">
+            <div className="rounded-[24px] border border-slate-800 bg-black p-6 text-slate-400">
               <p>Available subjects are drawn from teacher assignments. If no subjects appear, ask the admin to assign teachers and subjects.</p>
             </div>
           </div>
@@ -210,17 +210,17 @@ export default function StudentPage() {
       case "report":
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-slate-900">Report Card</h3>
-            <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-              <p className="text-slate-600">This report card includes all enrolled subjects and grade scores.</p>
+            <h3 className="text-xl font-semibold text-white">Report Card</h3>
+            <div className="rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur">
+              <p className="text-slate-400">This report card includes all enrolled subjects and grade scores.</p>
               {grades.length === 0 ? (
-                <p className="mt-4 text-slate-600">No grades are available to print.</p>
+                <p className="mt-4 text-slate-400">No grades are available to print.</p>
               ) : (
                 <div className="mt-4 space-y-3">
                   {grades.map((grade) => (
-                    <div key={grade.id} className="rounded-3xl border border-slate-200 bg-slate-50 p-4">
-                      <p className="font-semibold text-slate-900">{grade.subject}</p>
-                      <p className="text-sm text-slate-600">Score: {grade.score}</p>
+                    <div key={grade.id} className="rounded-3xl border border-slate-800 bg-black p-4">
+                      <p className="font-semibold text-white">{grade.subject}</p>
+                      <p className="text-sm text-slate-400">Score: {grade.score}</p>
                     </div>
                   ))}
                 </div>
@@ -234,11 +234,11 @@ export default function StudentPage() {
       case "settings":
         return (
           <div className="space-y-6">
-            <h3 className="text-xl font-semibold text-slate-900">Settings</h3>
-            <div className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200">
-              <p className="text-slate-600">Name: {profile.full_name}</p>
-              <p className="mt-2 text-slate-600">Email: {profile.email}</p>
-              <p className="mt-2 text-slate-600">Year level: {profile.year_level || "Not set"}</p>
+            <h3 className="text-xl font-semibold text-white">Settings</h3>
+            <div className="rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur">
+              <p className="text-slate-400">Name: {profile.full_name}</p>
+              <p className="mt-2 text-slate-400">Email: {profile.email}</p>
+              <p className="mt-2 text-slate-400">Year level: {profile.year_level || "Not set"}</p>
             </div>
           </div>
         );
@@ -248,7 +248,7 @@ export default function StudentPage() {
   };
 
   return (
-    <main className="min-h-screen bg-slate-50 px-4 py-6 sm:px-6 sm:py-8">
+    <main className="min-h-screen bg-black px-4 py-6 sm:px-6 sm:py-8">
       <div className="mx-auto flex w-full max-w-7xl min-h-[calc(100vh-48px)] flex-col gap-6 lg:flex-row">
         <Sidebar
           title="FGBI Student"
@@ -260,20 +260,20 @@ export default function StudentPage() {
         />
 
         <div className="flex-1 space-y-6">
-          <section className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200 sm:p-8">
+          <section className="rounded-[28px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur sm:p-8">
             <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
               <div>
-                <p className="text-sm uppercase tracking-[0.2em] text-sky-600">Student portal</p>
-                <h1 className="mt-3 text-3xl font-semibold text-slate-900">{profile.full_name}</h1>
-                <p className="mt-2 text-slate-600">View your grades, enroll in subjects, and print your report card.</p>
+                <p className="text-sm uppercase tracking-[0.2em] text-sky-400">Student portal</p>
+                <h1 className="mt-3 text-3xl font-semibold text-white">{profile.full_name}</h1>
+                <p className="mt-2 text-slate-400">View your grades, enroll in subjects, and print your report card.</p>
               </div>
             </div>
           </section>
 
-          {message ? <div className="rounded-3xl bg-emerald-50 p-4 text-emerald-800 shadow-sm">{message}</div> : null}
-          {error ? <div className="rounded-3xl bg-rose-50 p-4 text-rose-800 shadow-sm">{error}</div> : null}
+          {message ? <div className="rounded-3xl border border-emerald-800/60 bg-emerald-500/10 p-4 text-emerald-300 shadow-sm">{message}</div> : null}
+          {error ? <div className="rounded-3xl border border-rose-800/60 bg-rose-500/10 p-4 text-rose-300 shadow-sm">{error}</div> : null}
 
-          <section className="rounded-3xl bg-white p-6 shadow-xl shadow-slate-200 sm:p-8">{renderActivePane()}</section>
+          <section className="rounded-[28px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur sm:p-8">{renderActivePane()}</section>
         </div>
       </div>
     </main>

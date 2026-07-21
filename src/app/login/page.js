@@ -15,7 +15,7 @@ export default function LoginPage() {
   if (supabaseClientError) {
     return (
       <main className="min-h-screen px-4 py-6 sm:px-6 sm:py-8">
-        <div className="mx-auto w-full max-w-xl rounded-[32px] border border-slate-800 bg-slate-900/85 p-6 shadow-2xl shadow-black/30 backdrop-blur sm:p-8">
+        <div className="mx-auto w-full max-w-xl rounded-[32px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur sm:p-8">
           <h1 className="text-3xl font-semibold text-white">Login to FGBI</h1>
           <p className="mt-2 text-slate-400">
             The app cannot connect to Supabase because the public environment variables are not set.
@@ -54,8 +54,8 @@ export default function LoginPage() {
   }
 
   return (
-    <main className="min-h-screen bg-[url('/bg.png')] bg-cover bg-center px-4 py-6 sm:px-6 sm:py-8">
-      <div className="mx-auto w-full max-w-xl rounded-[32px] border border-slate-800 bg-slate-900/80 p-6 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-8">
+    <main className="min-h-screen bg-black px-4 py-6 sm:px-6 sm:py-8">
+      <div className="mx-auto w-full max-w-xl rounded-[32px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur-xl sm:p-8">
         <div className="mx-auto mb-8 flex max-w-[220px] flex-col items-center text-center">
           <img src="/fgbi.png" alt="FGBI logo" className="h-16 w-16" />
           <h1 className="mt-5 text-3xl font-semibold text-white">Login to FGBI</h1>
@@ -66,7 +66,7 @@ export default function LoginPage() {
           <label className="block">
             <span className="text-sm font-medium text-slate-300">Email</span>
             <input
-              className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-800/80 px-4 py-3 text-white placeholder:text-slate-500 focus:border-sky-500 focus:outline-none"
+              className="mt-2 w-full rounded-2xl border border-slate-700 bg-black px-4 py-3 text-white placeholder:text-slate-500 focus:border-sky-500 focus:outline-none"
               type="email"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
@@ -77,7 +77,7 @@ export default function LoginPage() {
           <label className="block">
             <span className="text-sm font-medium text-slate-300">Password</span>
             <input
-              className="mt-2 w-full rounded-2xl border border-slate-700 bg-slate-800/80 px-4 py-3 text-white placeholder:text-slate-500 focus:border-sky-500 focus:outline-none"
+              className="mt-2 w-full rounded-2xl border border-slate-700 bg-black px-4 py-3 text-white placeholder:text-slate-500 focus:border-sky-500 focus:outline-none"
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}

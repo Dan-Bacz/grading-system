@@ -50,7 +50,7 @@ export default function DashboardPage() {
   if (loading) {
     return (
       <main className="min-h-screen p-6">
-        <div className="mx-auto max-w-xl rounded-[32px] border border-slate-800 bg-slate-900/85 p-10 text-center shadow-2xl shadow-black/30 backdrop-blur">
+        <div className="mx-auto max-w-xl rounded-[32px] border border-slate-800 bg-black p-10 text-center shadow-2xl shadow-black/30 backdrop-blur">
           <p className="text-slate-300">Loading dashboard…</p>
         </div>
       </main>
@@ -60,7 +60,7 @@ export default function DashboardPage() {
   if (error) {
     return (
       <main className="min-h-screen p-6">
-        <div className="mx-auto max-w-xl rounded-[32px] border border-slate-800 bg-slate-900/85 p-10 shadow-2xl shadow-black/30 backdrop-blur">
+        <div className="mx-auto max-w-xl rounded-[32px] border border-slate-800 bg-black p-10 shadow-2xl shadow-black/30 backdrop-blur">
           <p className="text-red-400">{error}</p>
           <Link href="/login" className="mt-4 inline-flex text-sky-400 hover:text-sky-300">
             Return to login
@@ -78,8 +78,8 @@ export default function DashboardPage() {
       : "/student";
 
   return (
-    <main className="min-h-screen p-6">
-      <div className="mx-auto max-w-3xl rounded-[32px] border border-slate-800 bg-slate-900/85 p-8 shadow-2xl shadow-black/30 backdrop-blur">
+    <main className="min-h-screen bg-black p-6">
+      <div className="mx-auto max-w-3xl rounded-[32px] border border-slate-800 bg-black p-8 shadow-2xl shadow-black/30 backdrop-blur">
         <div className="flex flex-col gap-4 sm:flex-row sm:justify-between sm:items-center">
           <div>
             <p className="text-sm uppercase tracking-[0.2em] text-sky-400">Welcome back</p>
@@ -89,13 +89,13 @@ export default function DashboardPage() {
 
           <button
             onClick={handleSignOut}
-            className="rounded-2xl bg-slate-100 px-5 py-3 text-slate-900 transition hover:bg-white"
+            className="rounded-2xl border border-slate-700 bg-black px-5 py-3 text-slate-200 transition hover:bg-slate-900"
           >
             Sign Out
           </button>
         </div>
 
-        <div className="mt-8 rounded-3xl border border-slate-800 bg-slate-800/70 p-6">
+        <div className="mt-8 rounded-3xl border border-slate-800 bg-black p-6">
           <p className="text-slate-300">
             Account status: <span className="font-semibold text-white">{profile.status}</span>
           </p>
