@@ -375,26 +375,6 @@ export default function TeacherPage() {
             </div>
           </div>
         );
-              </form>
-            </div>
-            <div className="rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur">
-              <h4 className="text-lg font-semibold text-white">Grade list</h4>
-              {grades.length === 0 ? (
-                <p className="mt-4 text-slate-400">No grades yet.</p>
-              ) : (
-                <div className="mt-4 space-y-3">
-                  {grades.map((grade) => (
-                    <div key={grade.id} className="rounded-3xl border border-slate-800 bg-[#0b1016] p-4">
-                      <p className="font-semibold text-white">{grade.subject}</p>
-                      <p className="text-sm text-slate-400">Student: {studentMap[grade.student_id] || grade.student_id}</p>
-                      <p className="text-sm text-slate-400">Score: {grade.score}</p>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        );
       case "settings":
         return (
           <div className="space-y-6">
