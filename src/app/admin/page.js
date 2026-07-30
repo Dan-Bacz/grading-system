@@ -1,15 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import Sidebar from "@/components/Sidebar";
+import { addGradeEntry, addStudent, addTeacher, enrollStudentInSubject, loadGradeStore, upsertSubject } from "@/lib/gradeStore";
 
 const adminMenu = [
   { key: "dashboard", label: "Dashboard" },
   { key: "approve", label: "Approve Accounts" },
   { key: "faculty", label: "Faculty List" },
   { key: "students", label: "Student List" },
+  { key: "subjects", label: "Subjects" },
   { key: "grades", label: "Grades" },
   { key: "enrollment", label: "Enrollment" },
   { key: "system", label: "System Info" },
@@ -273,8 +275,19 @@ export default function AdminPage() {
   const [semesterName, setSemesterName] = useState("");
   const [subjectName, setSubjectName] = useState("");
   const [selectedTeacher, setSelectedTeacher] = useState("");
+  const [selectedStudent, setSelectedStudent] = useState("");
+  const [selectedSubject, setSelectedSubject] = useState("");
+  const [studentName, setStudentName] = useState("");
+  const [studentEmail, setStudentEmail] = useState("");
+  const [studentYear, setStudentYear] = useState("");
+  const [teacherName, setTeacherName] = useState("");
+  const [teacherEmail, setTeacherEmail] = useState("");
+  const [teacherSubject, setTeacherSubject] = useState("");
+  const [gradeScore, setGradeScore] = useState("");
+  const [gradeComment, setGradeComment] = useState("");
   const [semesters, setSemesters] = useState([]);
   const [subjects, setSubjects] = useState([]);
+  const [localStore, setLocalStore] = useState(loadGradeStore());
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(true);
@@ -317,6 +330,10 @@ export default function AdminPage() {
     loadAdmin();
   }, [router]);
 
+  const teacherOptions = useMemo(() => localStore.teachers || [], [localStore.teachers]);
+  const studentOptions = useMemo(() => localStore.students || [], [localStore.students]);
+  const subjectOptions = useMemo(() => localStore.subjects || [], [localStore.subjects]);
+
   async function refreshData() {
     setMessage("");
     setError("");
@@ -331,6 +348,8 @@ export default function AdminPage() {
       setTeachers(result.teachers || []);
       setStudents(result.students || []);
       setGrades(result.grades || []);
+      const store = loadGradeStore();
+      setLocalStore(store);
     } catch (err) {
       setError(err.message);
     }
@@ -432,9 +451,116 @@ export default function AdminPage() {
       return;
     }
 
-    setSubjects((current) => [...current, { id: Date.now().toString(), name: subjectName.trim() }]);
+    const nextStore = upsertSubject(localStore, { name: subjectName.trim(), teacherId: selectedTeacher || "", teacherName: teacherName || "" });
+    setLocalStore(nextStore);
+    setSubjects(nextStore.subjects);
     setSubjectName("");
+    setSelectedTeacher("");
     setMessage("Subject added.");
+  }
+
+  function handleAddTeacher(event) {
+    event.preventDefault();
+    setMessage("");
+    setError("");
+
+    if (!teacherName.trim() || !teacherEmail.trim()) {
+      setError("Provide a teacher name and email.");
+      return;
+    }
+
+    const nextStore = addTeacher(localStore, {
+      full_name: teacherName.trim(),
+      email: teacherEmail.trim(),
+      assigned_subject: teacherSubject.trim(),
+    });
+    setLocalStore(nextStore);
+    setTeacherName("");
+    setTeacherEmail("");
+    setTeacherSubject("");
+    setMessage("Teacher added locally.");
+  }
+
+  function handleAddStudent(event) {
+    event.preventDefault();
+    setMessage("");
+    setError("");
+
+    if (!studentName.trim() || !studentEmail.trim()) {
+      setError("Provide a student name and email.");
+      return;
+    }
+
+    const nextStore = addStudent(localStore, {
+      full_name: studentName.trim(),
+      email: studentEmail.trim(),
+      year_level: studentYear.trim(),
+    });
+    setLocalStore(nextStore);
+    setStudentName("");
+    setStudentEmail("");
+    setStudentYear("");
+    setMessage("Student added locally.");
+  }
+
+  function handleEnrollStudent(event) {
+    event.preventDefault();
+    setMessage("");
+    setError("");
+
+    if (!selectedStudent || !selectedSubject) {
+      setError("Choose a student and a subject.");
+      return;
+    }
+
+    const student = studentOptions.find((item) => item.id === selectedStudent);
+    const subject = subjectOptions.find((item) => item.id === selectedSubject);
+     if (!student || !subject) {
+      setError("The selected student or subject could not be found.");
+      return;
+    }
+
+    const nextStore = enrollStudentInSubject(localStore, subject.id, student);
+    setLocalStore(nextStore);
+    setSelectedStudent("");
+    setSelectedSubject("");
+    setMessage(`${student.full_name} enrolled in ${subject.name}.`);
+  }
+
+  function handleAddGrade(event) {
+    event.preventDefault();
+    setMessage("");
+    setError("");
+
+    if (!selectedStudent || !selectedSubject || !gradeScore) {
+      setError("Choose a student, subject, and enter a score.");
+      return;
+    }
+
+    const student = studentOptions.find((item) => item.id === selectedStudent);
+    const subject = subjectOptions.find((item) => item.id === selectedSubject);
+    if (!student || !subject) {
+      setError("The selected student or subject could not be found.");
+      return;
+    }
+
+    const nextStore = addGradeEntry(localStore, {
+      studentId: student.id,
+      studentName: student.full_name,
+      subjectId: subject.id,
+      subjectName: subject.name,
+      teacherId: "admin",
+      teacherName: "Admin",
+      score: Number(gradeScore),
+      comment: gradeComment,
+    });
+    setLocalStore(nextStore);
+    setGrades(nextStore.grades);
+    setSelectedStudent("");
+    setSelectedSubject("");
+    setGradeScore("");
+    setGradeComment("");
+    setMessage("Grade recorded.");
   }
 
   function handleSignOut() {
@@ -600,20 +726,107 @@ export default function AdminPage() {
             )}
           </div>
         );
+      case "subjects":
+        return (
+          <div className="space-y-6">
+            <h3 className="text-xl font-semibold text-white">Subjects and assignments</h3>
+            <div className="grid gap-6 lg:grid-cols-2">
+              <div className="rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur">
+                <h4 className="text-lg font-semibold text-white">Create teacher</h4>
+                <form onSubmit={handleAddTeacher} className="mt-4 space-y-4">
+                  <input value={teacherName} onChange={(event) => setTeacherName(event.target.value)} placeholder="Teacher name" className="w-full rounded-2xl border border-slate-700 bg-black px-4 py-3 text-white" />
+                  <input value={teacherEmail} onChange={(event) => setTeacherEmail(event.target.value)} placeholder="Teacher email" className="w-full rounded-2xl border border-slate-700 bg-black px-4 py-3 text-white" />
+                  <input value={teacherSubject} onChange={(event) => setTeacherSubject(event.target.value)} placeholder="Assigned subject" className="w-full rounded-2xl border border-slate-700 bg-black px-4 py-3 text-white" />
+                  <button className="rounded-2xl bg-sky-600 px-5 py-3 text-white">Add teacher</button>
+                </form>
+              </div>
+              <div className="rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur">
+                <h4 className="text-lg font-semibold text-white">Create student</h4>
+                <form onSubmit={handleAddStudent} className="mt-4 space-y-4">
+                  <input value={studentName} onChange={(event) => setStudentName(event.target.value)} placeholder="Student name" className="w-full rounded-2xl border border-slate-700 bg-black px-4 py-3 text-white" />
+                  <input value={studentEmail} onChange={(event) => setStudentEmail(event.target.value)} placeholder="Student email" className="w-full rounded-2xl border border-slate-700 bg-black px-4 py-3 text-white" />
+                  <input value={studentYear} onChange={(event) => setStudentYear(event.target.value)} placeholder="Year level" className="w-full rounded-2xl border border-slate-700 bg-black px-4 py-3 text-white" />
+                  <button className="rounded-2xl bg-sky-600 px-5 py-3 text-white">Add student</button>
+                </form>
+              </div>
+            </div>
+
+            <div className="rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur">
+              <h4 className="text-lg font-semibold text-white">Subject roster</h4>
+              {subjectOptions.length === 0 ? (
+                <p className="mt-4 text-slate-400">No subjects have been created yet.</p>
+              ) : (
+                <div className="mt-4 grid gap-4">
+                  {subjectOptions.map((subject) => (
+                    <div key={subject.id} className="rounded-3xl border border-slate-800 bg-[#0b1016] p-4">
+                      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <p className="font-semibold text-white">{subject.name}</p>
+                          <p className="text-sm text-slate-400">Teacher: {subject.teacherName || "Unassigned"}</p>
+                        </div>
+                        <p className="text-sm text-slate-400">Students enrolled: {subject.students?.length || 0}</p>
+                      </div>
+                      {subject.students?.length ? (
+                        <div className="mt-3 space-y-2">
+                          {subject.students.map((student) => (
+                            <div key={student.id} className="rounded-2xl border border-slate-800 bg-black px-3 py-2 text-sm text-slate-300">
+                              {student.full_name} · {student.year_level || "No year"}
+                            </div>
+                          ))}
+                        </div>
+                      ) : null}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        );
       case "grades":
         return (
           <div className="space-y-6">
             <h3 className="text-xl font-semibold text-white">Grades overview</h3>
-            {grades.length === 0 ? (
+            <form onSubmit={handleAddGrade} className="space-y-4 rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur">
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="block text-sm text-slate-300">
+                  Student
+                  <select value={selectedStudent} onChange={(event) => setSelectedStudent(event.target.value)} className="mt-2 w-full rounded-2xl border border-slate-700 bg-[#0b1016] px-4 py-3 text-white">
+                    <option value="">Select student</option>
+                    {studentOptions.map((student) => (
+                      <option key={student.id} value={student.id}>{student.full_name}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block text-sm text-slate-300">
+                  Subject
+                  <select value={selectedSubject} onChange={(event) => setSelectedSubject(event.target.value)} className="mt-2 w-full rounded-2xl border border-slate-700 bg-[#0b1016] px-4 py-3 text-white">
+                    <option value="">Select subject</option>
+                    {subjectOptions.map((subject) => (
+                      <option key={subject.id} value={subject.id}>{subject.name}</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <label className="block text-sm text-slate-300">
+                Score
+                <input value={gradeScore} onChange={(event) => setGradeScore(event.target.value)} placeholder="e.g. 88" className="mt-2 w-full rounded-2xl border border-slate-700 bg-[#0b1016] px-4 py-3 text-white" />
+              </label>
+              <label className="block text-sm text-slate-300">
+                Comment
+                <textarea value={gradeComment} onChange={(event) => setGradeComment(event.target.value)} placeholder="Comment" className="mt-2 h-24 w-full rounded-2xl border border-slate-700 bg-[#0b1016] px-4 py-3 text-white" />
+              </label>
+              <button className="rounded-2xl bg-sky-600 px-5 py-3 text-white">Submit grade</button>
+            </form>
+            {localStore.grades.length === 0 ? (
               <p className="text-slate-400">No grades have been entered yet.</p>
             ) : (
               <div className="space-y-4">
-                {grades.map((grade) => (
+                {localStore.grades.map((grade) => (
                   <div key={grade.id} className="rounded-3xl border border-slate-800 bg-black p-4">
-                    <p className="font-semibold text-white">Subject: {grade.subject}</p>
-                    <p className="text-sm text-slate-400">Student ID: {grade.student_id}</p>
-                    <p className="text-sm text-slate-400">Teacher ID: {grade.teacher_id}</p>
+                    <p className="font-semibold text-white">{grade.subjectName}</p>
+                    <p className="text-sm text-slate-400">Student: {grade.studentName}</p>
                     <p className="text-sm text-slate-400">Score: {grade.score}</p>
+                    {grade.comment ? <p className="text-sm text-slate-400">Comment: {grade.comment}</p> : null}
                   </div>
                 ))}
               </div>
@@ -624,6 +837,29 @@ export default function AdminPage() {
         return (
           <div className="space-y-6">
             <h3 className="text-xl font-semibold text-white">Enrollment and semesters</h3>
+            <form onSubmit={handleEnrollStudent} className="space-y-4 rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur">
+              <div className="grid gap-4 md:grid-cols-2">
+                <label className="block text-sm text-slate-300">
+                  Student
+                  <select value={selectedStudent} onChange={(event) => setSelectedStudent(event.target.value)} className="mt-2 w-full rounded-2xl border border-slate-700 bg-[#0b1016] px-4 py-3 text-white">
+                    <option value="">Select student</option>
+                    {studentOptions.map((student) => (
+                      <option key={student.id} value={student.id}>{student.full_name}</option>
+                    ))}
+                  </select>
+                </label>
+                <label className="block text-sm text-slate-300">
+                  Subject
+                  <select value={selectedSubject} onChange={(event) => setSelectedSubject(event.target.value)} className="mt-2 w-full rounded-2xl border border-slate-700 bg-[#0b1016] px-4 py-3 text-white">
+                    <option value="">Select subject</option>
+                    {subjectOptions.map((subject) => (
+                      <option key={subject.id} value={subject.id}>{subject.name}</option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+              <button className="rounded-2xl bg-sky-600 px-5 py-3 text-white">Enroll student</button>
+            </form>
             <div className="grid gap-6 lg:grid-cols-2">
               <div className="rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur">
                 <h4 className="text-lg font-semibold text-white">Add new semester</h4>

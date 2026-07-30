@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { supabase } from "@/lib/supabaseClient";
 import Sidebar from "@/components/Sidebar";
+import { addGradeEntry, loadGradeStore } from "@/lib/gradeStore";
 
 const teacherMenu = [
   { key: "dashboard", label: "Dashboard" },
@@ -19,8 +20,11 @@ export default function TeacherPage() {
   const [students, setStudents] = useState([]);
   const [grades, setGrades] = useState([]);
   const [selectedStudent, setSelectedStudent] = useState("");
+  const [selectedSubject, setSelectedSubject] = useState("");
+  const [reportPreview, setReportPreview] = useState(null);
   const [score, setScore] = useState("");
   const [comment, setComment] = useState("");
+  const [store, setStore] = useState(loadGradeStore());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
@@ -77,6 +81,7 @@ export default function TeacherPage() {
 
       setStudents(studentData.data || []);
       setGrades(gradeData.data || []);
+      setStore(loadGradeStore());
     }
 
     loadTeacher();
@@ -99,8 +104,8 @@ export default function TeacherPage() {
     setError("");
     setMessage("");
 
-    if (!selectedStudent || !score) {
-      setError("Select a student and enter a score.");
+    if (!selectedStudent || !selectedSubject || !score) {
+      setError("Select a student, subject, and enter a score.");
       return;
     }
 
@@ -108,7 +113,7 @@ export default function TeacherPage() {
       {
         student_id: selectedStudent,
         teacher_id: profile.user_id,
-        subject: profile.assigned_subject || "Unassigned",
+        subject: selectedSubject,
         score: Number(score),
         comment,
       },
@@ -119,8 +124,20 @@ export default function TeacherPage() {
       return;
     }
 
+    const nextStore = addGradeEntry(store, {
+      studentId: selectedStudent,
+      studentName: students.find((student) => student.user_id === selectedStudent)?.full_name || selectedStudent,
+      subjectId: `${selectedSubject}-${profile.user_id}`,
+      subjectName: selectedSubject,
+      teacherId: profile.user_id,
+      teacherName: profile.full_name,
+      score: Number(score),
+      comment,
+    });
+    setStore(nextStore);
     setMessage("Grade added successfully.");
     setSelectedStudent("");
+    setSelectedSubject("");
     setScore("");
     setComment("");
     await refreshGrades();
@@ -133,6 +150,37 @@ export default function TeacherPage() {
       .eq("teacher_id", profile.user_id)
       .order("created_at", { ascending: false });
     setGrades(data || []);
+  }
+
+  function handlePrintStudentReport() {
+    if (!selectedStudent || !selectedSubject) {
+      setError("Select a student and subject first.");
+      return;
+    }
+
+    const student = students.find((entry) => entry.user_id === selectedStudent);
+    const studentGrades = grades.filter((grade) => grade.student_id === selectedStudent && grade.subject === selectedSubject);
+    setReportPreview({
+      student,
+      subject: selectedSubject,
+      grades: studentGrades,
+    });
+    window.setTimeout(() => window.print(), 250);
+  }
+
+  function handlePrintSubjectReport() {
+    if (!selectedSubject) {
+      setError("Select a subject first.");
+      return;
+    }
+
+    const subjectGrades = grades.filter((grade) => grade.subject === selectedSubject);
+    setReportPreview({
+      subject: selectedSubject,
+      grades: subjectGrades,
+      isSubjectReport: true,
+    });
+    window.setTimeout(() => window.print(), 250);
   }
 
   function handleSignOut() {
@@ -184,15 +232,32 @@ export default function TeacherPage() {
               <p className="mt-2 text-2xl font-semibold text-white">{profile.assigned_subject || "Waiting for assignment"}</p>
             </div>
             <div className="rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur">
-              <h4 className="text-lg font-semibold text-white">Students in this subject</h4>
-              {grades.length === 0 ? (
-                <p className="mt-4 text-slate-400">No students have grades yet for this subject.</p>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <h4 className="text-lg font-semibold text-white">Students in this subject</h4>
+                <label className="text-sm text-slate-300">
+                  Subject
+                  <select value={selectedSubject} onChange={(event) => setSelectedSubject(event.target.value)} className="ml-2 rounded-2xl border border-slate-700 bg-[#0b1016] px-3 py-2 text-white">
+                    <option value="">Choose subject</option>
+                    <option value={profile.assigned_subject || "Unassigned"}>{profile.assigned_subject || "Unassigned"}</option>
+                  </select>
+                </label>
+              </div>
+              {!selectedSubject ? (
+                <p className="mt-4 text-slate-400">Select a subject to view the enrolled students.</p>
               ) : (
-                <div className="mt-4 space-y-3">
-                  {grades.map((grade) => (
-                    <div key={grade.id} className="rounded-3xl border border-slate-800 bg-[#0b1016] p-4">
-                      <p className="font-semibold text-white">{studentMap[grade.student_id] || grade.student_id}</p>
-                      <p className="text-sm text-slate-400">Score: {grade.score}</p>
+                <div className="mt-4 space-y-4">
+                  {students.filter((student) => student.assigned_subject === selectedSubject || !student.assigned_subject).map((student) => (
+                    <div key={student.user_id} className="rounded-3xl border border-slate-800 bg-[#0b1016] p-4">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                        <div>
+                          <p className="font-semibold text-white">{student.full_name}</p>
+                          <p className="text-sm text-slate-400">Year: {student.year_level || "Not set"}</p>
+                        </div>
+                        <div className="flex gap-2">
+                          <button className="rounded-2xl border border-slate-700 px-3 py-2 text-sm text-slate-200">View</button>
+                          <button className="rounded-2xl bg-sky-600 px-3 py-2 text-sm text-white">Grade</button>
+                        </div>
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -240,6 +305,93 @@ export default function TeacherPage() {
               <p className="text-slate-400">Total grades recorded:</p>
               <p className="mt-3 text-3xl font-semibold text-white">{grades.length}</p>
               <p className="mt-4 text-slate-400">Use this view to see student performance per subject and school year.</p>
+            </div>
+            <div className="rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur">
+              <h4 className="text-lg font-semibold text-white">Grade entry</h4>
+              <form onSubmit={submitGrade} className="mt-4 space-y-4">
+                <div className="grid gap-4 md:grid-cols-2">
+                  <label className="block text-sm text-slate-300">
+                    Student
+                    <select value={selectedStudent} onChange={(event) => setSelectedStudent(event.target.value)} className="mt-2 w-full rounded-2xl border border-slate-700 bg-[#0b1016] px-4 py-3 text-white">
+                      <option value="">Select student</option>
+                      {students.map((student) => (
+                        <option key={student.user_id} value={student.user_id}>{student.full_name}</option>
+                      ))}
+                    </select>
+                  </label>
+                  <label className="block text-sm text-slate-300">
+                    Subject
+                    <select value={selectedSubject} onChange={(event) => setSelectedSubject(event.target.value)} className="mt-2 w-full rounded-2xl border border-slate-700 bg-[#0b1016] px-4 py-3 text-white">
+                      <option value="">Select subject</option>
+                      <option value={profile.assigned_subject || "Unassigned"}>{profile.assigned_subject || "Unassigned"}</option>
+                    </select>
+                  </label>
+                </div>
+                <label className="block text-sm text-slate-300">
+                  Score
+                  <input value={score} onChange={(event) => setScore(event.target.value)} placeholder="e.g. 88" className="mt-2 w-full rounded-2xl border border-slate-700 bg-[#0b1016] px-4 py-3 text-white" />
+                </label>
+                <label className="block text-sm text-slate-300">
+                  Comment
+                  <textarea value={comment} onChange={(event) => setComment(event.target.value)} placeholder="Comment" className="mt-2 h-24 w-full rounded-2xl border border-slate-700 bg-[#0b1016] px-4 py-3 text-white" />
+                </label>
+                <div className="flex flex-wrap gap-3">
+                  <button className="rounded-2xl bg-sky-600 px-5 py-3 text-white">Submit grade</button>
+                  <button type="button" onClick={handlePrintStudentReport} className="rounded-2xl border border-slate-700 px-5 py-3 text-slate-200">Print student report</button>
+                  <button type="button" onClick={handlePrintSubjectReport} className="rounded-2xl border border-slate-700 px-5 py-3 text-slate-200">Print subject report</button>
+                </div>
+              </form>
+            </div>
+            {reportPreview ? (
+              <div className="rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur print:block hidden">
+                <h4 className="text-xl font-semibold text-white">{reportPreview.isSubjectReport ? `Subject report: ${reportPreview.subject}` : `Student report: ${reportPreview.student?.full_name || "Student"}`}</h4>
+                <p className="mt-2 text-slate-400">{reportPreview.isSubjectReport ? "All grades recorded for this subject" : `Grades recorded for ${reportPreview.subject}`}</p>
+                <div className="mt-4 space-y-3">
+                  {(reportPreview.grades || []).map((grade) => (
+                    <div key={grade.id} className="rounded-2xl border border-slate-800 bg-[#0b1016] p-3">
+                      <p className="font-semibold text-white">{reportPreview.isSubjectReport ? (studentMap[grade.student_id] || grade.student_id) : grade.subject}</p>
+                      <p className="text-sm text-slate-400">Score: {grade.score}</p>
+                      {grade.comment ? <p className="text-sm text-slate-400">Comment: {grade.comment}</p> : null}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ) : null}
+            <div className="rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur">
+              <h4 className="text-lg font-semibold text-white">Grade list</h4>
+              {grades.length === 0 ? (
+                <p className="mt-4 text-slate-400">No grades yet.</p>
+              ) : (
+                <div className="mt-4 space-y-3">
+                  {grades.map((grade) => (
+                    <div key={grade.id} className="rounded-3xl border border-slate-800 bg-[#0b1016] p-4">
+                      <p className="font-semibold text-white">{grade.subject}</p>
+                      <p className="text-sm text-slate-400">Student: {studentMap[grade.student_id] || grade.student_id}</p>
+                      <p className="text-sm text-slate-400">Score: {grade.score}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        );
+              </form>
+            </div>
+            <div className="rounded-[24px] border border-slate-800 bg-black p-6 shadow-2xl shadow-black/30 backdrop-blur">
+              <h4 className="text-lg font-semibold text-white">Grade list</h4>
+              {grades.length === 0 ? (
+                <p className="mt-4 text-slate-400">No grades yet.</p>
+              ) : (
+                <div className="mt-4 space-y-3">
+                  {grades.map((grade) => (
+                    <div key={grade.id} className="rounded-3xl border border-slate-800 bg-[#0b1016] p-4">
+                      <p className="font-semibold text-white">{grade.subject}</p>
+                      <p className="text-sm text-slate-400">Student: {studentMap[grade.student_id] || grade.student_id}</p>
+                      <p className="text-sm text-slate-400">Score: {grade.score}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
             </div>
           </div>
         );
