@@ -10,10 +10,24 @@ if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE) {
   );
 }
 
-const adminClient = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE);
+function getAdminClient() {
+  if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE) {
+    return null;
+  }
+
+  return createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE);
+}
 
 export async function GET() {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE) {
+    return NextResponse.json(
+      { error: 'Supabase admin configuration is missing.' },
+      { status: 500 }
+    );
+  }
+
+  const adminClient = getAdminClient();
+  if (!adminClient) {
     return NextResponse.json(
       { error: 'Supabase admin configuration is missing.' },
       { status: 500 }
@@ -37,6 +51,14 @@ export async function GET() {
 
 export async function PATCH(request) {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE) {
+    return NextResponse.json(
+      { error: 'Supabase admin configuration is missing.' },
+      { status: 500 }
+    );
+  }
+
+  const adminClient = getAdminClient();
+  if (!adminClient) {
     return NextResponse.json(
       { error: 'Supabase admin configuration is missing.' },
       { status: 500 }
@@ -110,6 +132,14 @@ export async function PATCH(request) {
 
 export async function DELETE(request) {
   if (!SUPABASE_URL || !SUPABASE_SERVICE_ROLE) {
+    return NextResponse.json(
+      { error: 'Supabase admin configuration is missing.' },
+      { status: 500 }
+    );
+  }
+
+  const adminClient = getAdminClient();
+  if (!adminClient) {
     return NextResponse.json(
       { error: 'Supabase admin configuration is missing.' },
       { status: 500 }
